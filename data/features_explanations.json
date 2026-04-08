@@ -1,0 +1,77 @@
+{
+  "adm_mobility": {
+    "display_name": "Mobility",
+    "description": "Shows how much difficulty the patient has with walking or moving around at admission.",
+    "clinical_note": "Higher values may indicate poorer physical function and may contribute to a higher risk of QoL decline."
+  },
+  "adm_personal_care": {
+    "display_name": "Personal Care",
+    "description": "Reflects the patient's ability to wash and dress independently at admission.",
+    "clinical_note": "Higher impairment may suggest reduced independence and greater care needs."
+  },
+  "adm_normal_activity": {
+    "display_name": "Normal Activity",
+    "description": "Measures difficulty in performing usual daily activities such as work, study, or housework.",
+    "clinical_note": "Greater limitation can indicate reduced day-to-day functioning."
+  },
+  "adm_pain_uncomfort": {
+    "display_name": "Pain & Discomfort",
+    "description": "Represents the patient's pain or physical discomfort level at admission.",
+    "clinical_note": "Higher pain burden may worsen quality of life and recovery potential."
+  },
+  "adm_anxiety_depress": {
+    "display_name": "Anxiety / Depression",
+    "description": "Captures emotional distress such as anxiety or depressive symptoms at admission.",
+    "clinical_note": "Psychological distress can strongly affect perceived quality of life."
+  },
+  "adm_vas": {
+    "display_name": "Admission VAS Score",
+    "description": "The patient's self-rated health score at admission using the visual analogue scale.",
+    "clinical_note": "Lower perceived health may reflect a more vulnerable condition."
+  },
+  "age": {
+    "display_name": "Age",
+    "description": "The patient's age in years.",
+    "clinical_note": "Age may influence recovery pattern, resilience, and functional status."
+  },
+  "qol_pre_total": {
+    "display_name": "Baseline QoL Score",
+    "description": "The total admission quality-of-life score before discharge outcome is known.",
+    "clinical_note": "Poorer baseline QoL may be linked to higher risk of adverse outcome."
+  },
+  "gender": {
+    "display_name": "Gender",
+    "description": "Encoded gender variable used by the model.",
+    "clinical_note": "This is a demographic feature and should be interpreted carefully."
+  },
+  "adm_total_burden": {
+    "display_name": "Total Burden",
+    "description": "Combined burden across the five admission EQ-5D dimensions.",
+    "clinical_note": "Higher total burden reflects broader overall health difficulties."
+  },
+  "adm_function_score": {
+    "display_name": "Function Score",
+    "description": "Combined score based on mobility, personal care, and normal activity.",
+    "clinical_note": "Higher values suggest greater functional impairment."
+  },
+  "adm_distress_score": {
+    "display_name": "Distress Score",
+    "description": "Combined score based on pain/discomfort and anxiety/depression.",
+    "clinical_note": "Higher values suggest greater physical and emotional distress."
+  },
+  "adm_problem_count": {
+    "display_name": "Problem Count",
+    "description": "Counts how many admission QoL domains show problems.",
+    "clinical_note": "A higher count suggests more dimensions of health are affected."
+  },
+  "adm_severe_count": {
+    "display_name": "Severe Problem Count",
+    "description": "Counts how many admission QoL domains are in the severe range.",
+    "clinical_note": "More severe problems may indicate a more fragile clinical state."
+  },
+  "vas_gap": {
+    "display_name": "VAS Gap",
+    "description": "Represents a derived gap measure related to the VAS score used in the model.",
+    "clinical_note": "This feature should be interpreted based on how it was engineered in your pipeline."
+  }
+}
