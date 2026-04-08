@@ -72,6 +72,6 @@
   "vas_gap": {
     "display_name": "VAS Gap",
     "description": "Represents a derived gap measure related to the VAS score used in the model.",
-    "clinical_note": "This feature should be interpreted based on how it was engineered in your pipeline."
+    "clinical_note": "VAS Gap reflects the difference or change in the patient’s self-rated health or pain perception. A higher gap may indicate greater instability or worsening in perceived health status, which can be associated with increased risk of QoL decline. A smaller gap may suggest more stable or consistent perceived health."
   }
 }

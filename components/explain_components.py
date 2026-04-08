@@ -257,9 +257,7 @@ def render_shap_local_section(patient_row, prediction_result):
             bar_color = "#e25555" if value >= 0 else "#74a84a"
             value_color = "#e25555" if value >= 0 else "#5c9441"
             sign = "+" if value > 0 else ""
-
-            bars_html += f"""
-            <div style="
+            bars_html += f""" <div style="
                 display:grid;
                 grid-template-columns: 160px 1fr 80px;
                 align-items:center;
@@ -283,8 +281,7 @@ def render_shap_local_section(patient_row, prediction_result):
                     <div style="
                         width:{bar_width}%;
                         height:100%;
-                        background:{bar_color};
-                    "></div>
+                        background:{bar_color};"></div>
                 </div>
                 <div style="
                     font-family:'Space Mono', monospace;
@@ -323,40 +320,28 @@ def render_shap_local_section(patient_row, prediction_result):
     # RIGHT CARD: SHAP Waterfall Plot
     # -----------------------------
     with c2:
-        st.markdown("""
-        <div style="
-            background:white;
-            border:1px solid #d9e1ef;
-            border-radius:14px;
-            padding:18px;
-            min-height:390px;
-            box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            font-family:'Space Grotesk', sans-serif;
-            margin-bottom:12px;">
+        
+            st.markdown(f"""
             <div style="
-                font-size:18px;
-                font-weight:700;
-                color:#415c96;
-                margin-bottom:10px;">
-                SHAP Waterfall Plot
-            </div>
-            <div style="
-                height:1px;
-                background:#e7ebf3;
-                margin-bottom:18px;"></div>
-        </div>
-        """, unsafe_allow_html=True)
+                background:white;
+                border:1px solid #d9e1ef;
+                border-radius:14px;
+                padding:18px;
+                box-shadow:0 1px 4px rgba(0,0,0,0.04);
+                font-family:'Space Grotesk', sans-serif;">
+                <div style="
+                    font-size:18px;
+                    font-weight:700;
+                    color:#415c96;">
+                    SHAP Waterfall Plot
+                </div>
+            """, unsafe_allow_html=True)
 
-        try:
-            # create Explanation object for a single patient
-            values = shap_values
-            base_value = 0.0
-            data_values = [feature_values.get(col, 0) for col in feature_names]
-
+            # ---- SHAP PLOT ----
             explanation = shap.Explanation(
-                values=values,
-                base_values=base_value,
-                data=data_values,
+                values=shap_values,
+                base_values=0.0,
+                data=[feature_values.get(col, 0) for col in feature_names],
                 feature_names=feature_names
             )
 
@@ -364,37 +349,115 @@ def render_shap_local_section(patient_row, prediction_result):
             shap.plots.waterfall(explanation, max_display=10, show=False)
             st.pyplot(fig, use_container_width=True)
             plt.close(fig)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        except Exception as e:
-            st.warning("Unable to render SHAP waterfall plot.")
+        
+
+def render_force_plot_section(prediction_result):
+    st.markdown("### SHAP Force Plot")
+    st.caption("This plot shows which features pushed the prediction toward higher or lower decline risk.")
+    try:
+        expected_value = prediction_result["expected_value"]
+        shap_values = prediction_result["shap_values"]
+        feature_values = prediction_result["feature_values"]
+        feature_names = prediction_result["feature_names"]
+
+        # Convert feature values into a pandas Series so labels appear nicely
+        features = pd.Series(feature_values, index=feature_names)
+
+        plt.figure(figsize=(12, 3))
+        shap.force_plot(
+            expected_value,
+            shap_values,
+            features,
+            matplotlib=True,
+            show=False
+        )
+
+        fig = plt.gcf()
+        st.pyplot(fig, clear_figure=True)
+
+    except Exception as e:
+        st.warning(f"Force plot could not be displayed: {e}")
 
 
-def render_lime_section():
-    st.markdown("""
-    <h3 style="font-family:'Space Grotesk', sans-serif; margin-bottom:10px;">
-        LIME Explanation
-    </h3>
-    """, unsafe_allow_html=True)
+import streamlit as st
+from utils.explain import build_clinical_interpretation, extract_lime_rules
 
-    st.info("Place your LIME explanation output here.")
+def render_clinical_interpretation_section(prediction_result, lime_exp=None):
+    st.markdown("### Clinical Interpretation")
+    
+    # ===============================
+    # 5. Disclaimer
+    # ===============================
+    st.warning(
+        "This explanation is generated from model outputs and should be interpreted together "
+        "with the patient's full clinical context."
+    )
+
+    result = build_clinical_interpretation(prediction_result, lime_exp=lime_exp, top_n=3)
+
+    # ===============================
+    # 1. Summary
+    # ===============================
+    st.info(result["summary"])
+
+    # ===============================
+    # 2. Explanation (Bullet Points)
+    # ===============================
+    st.markdown("#### Key Clinical Factors")
+
+    if result["decline_factors"] or result["protective_factors"]:
+
+        # ===============================
+        # 🔴 Decline Risk Factors (Professional Card/Table)
+        # ===============================
+        if result["decline_factors"]:
+            st.caption("These factors contributed most strongly toward a risk in decline.")
+
+            # Build table data
+            table_data = []
+            for item in result["decline_factors"]:
+                table_data.append({
+                    "Factor": item["display_name"],
+                    "Value": item["feature_value"],
+                    "Clinical Interpretation": item["clinical_note"]
+                })
+
+            # Display as table (clean + professional)
+            st.dataframe(
+                table_data,
+                use_container_width=True,
+                hide_index=True
+            )
+
+        else:
+            
+            st.info("No strong decline-driving factors identified.")
+
+    else:
+        st.write("No strong contributing factors identified.")
+
+    # ===============================
+    # 3. Recommendations (1 paragraph)
+    # ===============================
+    recommendation_parts = []
+
+    for item in result["decline_factors"] + result["protective_factors"]:
+        rec = item.get("recommendation", "")
+        if rec:
+            recommendation_parts.append(rec)
+
+    # remove duplicates
+    recommendation_parts = list(dict.fromkeys(recommendation_parts))
+
+    recommendation_text = " ".join(recommendation_parts)
+
+    st.markdown("#### Clinical Recommendations")
+
+    if recommendation_text:
+        st.write(recommendation_text)
+    else:
+        st.write("No specific recommendations available.")
 
 
-def render_clinical_interpretation_section():
-    st.markdown("""
-    <h3 style="font-family:'Space Grotesk', sans-serif; margin-bottom:10px;">
-        Clinical Interpretation
-    </h3>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div style="
-        background:white;
-        border-radius:14px;
-        padding:18px;
-        font-family:'Space Grotesk', sans-serif;
-        border:1px solid #ececec;
-        color:#4f5f7d;
-    ">
-        Add a concise interpretation of the SHAP and LIME results here for clinicians.
-    </div>
-    """, unsafe_allow_html=True)

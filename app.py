@@ -213,7 +213,7 @@ def home():
 
 pg = st.navigation([
     st.Page(home, title="Home", icon=":material/home:", default=True),
-    st.Page("pages/1_Patient_Admission.py", title="Patient Admission", icon=":material/group:"),
+   # st.Page("pages/1_Patient_Admission.py", title="Patient Admission", icon=":material/group:"),
     st.Page("pages/2_Patient_Records.py", title="Patient Records", icon=":material/monitoring:"),
     st.Page("pages/3_SHAP_Explanation.py", title="QOL Risk Prediction", icon=":material/insights:"),
 ])

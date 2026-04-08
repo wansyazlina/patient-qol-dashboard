@@ -83,20 +83,51 @@ def get_prediction(patient_id, threshold=0.35):
     try:
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(patient_input)
+        expected_values = explainer.expected_value
+
+        # Find the index of "decline" in class_labels
+        decline_index = list(class_labels).index("decline")
 
         # For binary classification:
         # shap_values may be:
         # 1. a list of 2 arrays -> [class_0_array, class_1_array]
-        # 2. a single array depending on SHAP/version/model behavior
+        # 2. a 2D array -> (1, n_features)
+        # 3. a 3D array -> (1, n_features, n_classes)
         #
         # We want the SHAP values for the "decline" class.
         if isinstance(shap_values, list):
-            # Find the index of "decline" in class_labels
-            decline_index = list(class_labels).index("decline")
-            patient_shap_values = shap_values[decline_index][0]
+            patient_shap_values = np.array(shap_values[decline_index][0]).flatten()
+            expected_value = expected_values[decline_index]
+
         else:
-            # fallback for newer SHAP formats
-            patient_shap_values = shap_values[0]
+            shap_values = np.array(shap_values)
+
+            if shap_values.ndim == 3:
+                # shape: (1, n_features, n_classes)
+                patient_shap_values = shap_values[0, :, decline_index].flatten()
+
+                if isinstance(expected_values, (list, np.ndarray)):
+                    expected_value = np.array(expected_values).flatten()[decline_index]
+                else:
+                    expected_value = expected_values
+
+            elif shap_values.ndim == 2:
+                # shape: (1, n_features)
+                patient_shap_values = shap_values[0].flatten()
+
+                if isinstance(expected_values, (list, np.ndarray)):
+                    expected_value = np.array(expected_values).flatten()[0]
+                else:
+                    expected_value = expected_values
+
+            else:
+                # fallback
+                patient_shap_values = shap_values.flatten()
+
+                if isinstance(expected_values, (list, np.ndarray)):
+                    expected_value = np.array(expected_values).flatten()[0]
+                else:
+                    expected_value = expected_values
 
         # Also keep the actual feature values for this patient
         patient_feature_values = patient_input.iloc[0].to_dict()
@@ -105,10 +136,10 @@ def get_prediction(patient_id, threshold=0.35):
         # fallback if SHAP fails for any reason
         patient_shap_values = None
         patient_feature_values = patient_input.iloc[0].to_dict()
+        expected_value = None
     # =========================================================
     # END SHAP ADDITION
     # =========================================================
-
 
     return {
         "patient_id": patient_id,
@@ -122,5 +153,55 @@ def get_prediction(patient_id, threshold=0.35):
         "shap_values": patient_shap_values,
         "feature_values": patient_feature_values,
         "feature_names": feature_columns,
+        "expected_value": expected_value
         # =====================================================
     }
+    
+from lime.lime_tabular import LimeTabularExplainer
+import numpy as np
+
+
+@st.cache_resource
+def load_lime_explainer():
+    model_df = load_model_data()
+    feature_columns = load_feature_columns()
+
+    X_train_like = model_df[feature_columns]
+
+    explainer = LimeTabularExplainer(
+        training_data=np.array(X_train_like),
+        feature_names=feature_columns,
+        class_names=["decline", "no_decline"],
+        mode="classification"
+    )
+    return explainer
+
+
+def get_lime_explanation(patient_id, num_features=5):
+    model = load_model()
+    feature_columns = load_feature_columns()
+    model_df = load_model_data()
+    lime_explainer = load_lime_explainer()
+
+    patient_id = str(patient_id).strip()
+
+    model_match = model_df[
+        model_df["patient_id"].astype(str).str.strip() == patient_id
+    ]
+
+    if model_match.empty:
+        return None
+
+    model_patient_row = model_match.iloc[0].drop(labels=["patient_id"])
+    patient_input = pd.DataFrame([model_patient_row])
+    patient_input = patient_input.reindex(columns=feature_columns, fill_value=0)
+
+    try:
+        lime_exp = lime_explainer.explain_instance(
+            data_row=patient_input.iloc[0].values,
+            predict_fn=model.predict_proba,
+            num_features=num_features
+        )
+        return lime_exp
+    except Exception:
+        return None

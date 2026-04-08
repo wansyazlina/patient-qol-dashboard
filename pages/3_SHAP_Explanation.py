@@ -38,7 +38,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
 # -------------------------------
 # SEARCH SECTION
 # -------------------------------
