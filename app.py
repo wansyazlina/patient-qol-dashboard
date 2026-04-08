@@ -4,19 +4,24 @@ from utils.styles import load_styles
 from utils.predict import load_model
 import plotly.express as px
 from components.cards import colored_card, colored_border_card,section_header
+from utils.supabase_client import get_supabase_client
 
 
 st.set_page_config(page_title="Patient QoL Dashboard", layout="wide",page_icon="🏥")
 
-
 def home():
 
-    @st.cache_data
-    def load_data():
-        return pd.read_csv("data/patient_qol_cleaned.csv")
+    #----LOAD DATA FROM SUPABASE 
+    supabase = get_supabase_client()
 
+    @st.cache_data(ttl=300)
+    def load_patients():
+        response = supabase.table("patients").select("*").execute()
+        return pd.DataFrame(response.data)
+
+    df = load_patients()
+    
     load_styles()
-    df = load_data()
     
     st.title("🏥 Patient QoL Dashboard")
     st.markdown("""

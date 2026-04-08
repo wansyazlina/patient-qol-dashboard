@@ -1,16 +1,28 @@
 import pandas as pd
 import streamlit as st
 import shap
-
+from utils.supabase_client import get_supabase_client
 from utils.model_loader import (
     load_model,
     load_label_encoder,
     load_feature_columns,
 )
 
-@st.cache_data
+
+@st.cache_data(ttl=300)
 def load_model_data():
-    return pd.read_csv("data/model_ready_patients.csv", dtype={"patient_id": str})
+    supabase = get_supabase_client()
+    
+    response = supabase.table("model_ready_patients").select("*").execute()
+    data = response.data
+    
+    df = pd.DataFrame(data)
+    
+    # Ensure patient_id is treated as string
+    if "patient_id" in df.columns:
+        df["patient_id"] = df["patient_id"].astype(str)
+    
+    return df
 
 ##---------------------------------------------
 ## WHERE THE MAGIC OF MACHINE LEARNING HAPPENS - change threshold of model here

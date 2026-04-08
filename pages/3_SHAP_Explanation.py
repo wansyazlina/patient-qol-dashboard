@@ -8,15 +8,21 @@ from components.risk_tab import render_risk_prediction_tab
 from components.explain_tab import render_explainability_tab
 from utils.explain import build_local_shap_context
 import shap
+from utils.supabase_client import get_supabase_client
+
 
 st.set_page_config(page_title="QoL Risk Prediction", layout="wide",page_icon="🏥")
 
 load_styles()
-@st.cache_data
-def load_data():
-    return pd.read_csv("data/patient_qol_cleaned.csv")
 
-df = load_data()
+supabase = get_supabase_client()
+
+@st.cache_data(ttl=300)
+def load_patients():
+    response = supabase.table("patients").select("*").execute()
+    return pd.DataFrame(response.data)
+
+df = load_patients()
 
 st.markdown(
     """

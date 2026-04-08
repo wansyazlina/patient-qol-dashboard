@@ -4,8 +4,19 @@ from utils.styles import load_styles
 import plotly.express as px
 from components.cards import metric_cards,section_header
 from components.patient_detail_cards import patient_summary_cards
+from utils.supabase_client import get_supabase_client
 
 st.set_page_config(page_title="Patient Records", layout="wide",page_icon="🏥")
+
+supabase = get_supabase_client()
+
+@st.cache_data(ttl=300)
+def load_patients():
+    response = supabase.table("patients").select("*").execute()
+    return pd.DataFrame(response.data)
+
+df = load_patients()
+
 
 load_styles()
 
@@ -24,11 +35,8 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-@st.cache_data
-def load_data():
-    return pd.read_csv("data/patient_qol_cleaned.csv")
 
-df = load_data()
+
 
 # ---- Calculate statistics
 total_records = len(df)
