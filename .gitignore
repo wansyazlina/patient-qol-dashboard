@@ -25,3 +25,9 @@ dist/
 
 # Logs
 *.log
+
+# Confidential patient/research data - local only
+data/model_ready_patients.csv
+data/patient_qol_cleaned.csv
+data/X_test.csv
+data/y_test.csv
