@@ -14,3 +14,4 @@ pillow==10.4.0
 requests==2.32.3
 tqdm==4.66.5
 tzdata==2025.1
+gotrue==2.8.1
