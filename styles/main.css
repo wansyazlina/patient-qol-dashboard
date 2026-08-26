@@ -1,0 +1,265 @@
+/* =========================
+   SPACING
+   ========================= */
+.card-spacing {
+    height: 24px;
+}
+
+
+/* =========================
+   PREDICTION CARD
+   ========================= */
+
+.prediction-card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+
+/* =========================
+   LEFT SIDE
+   ========================= */
+
+.prediction-summary {
+    flex: 1;
+    min-width: 0;
+}
+
+.prediction-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.prediction-main-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.prediction-score {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.risk-badge {
+    font-family: 'Space Grotesk', sans-serif;
+
+    border: 1.5px solid;
+    border-radius: 999px;
+
+    padding: 6px 16px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.prediction-threshold {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+
+    margin-top: 10px;
+}
+
+.prediction-description {
+    font-family: 'Space Grotesk', sans-serif;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color: #666;
+
+    margin-top: 8px;
+
+    max-width: 320px;
+}
+
+
+/* =========================
+   RIGHT SIDE — RISK BAR
+   ========================= */
+
+.risk-section {
+    flex: 1.7;
+    min-width: 0;
+}
+
+.risk-bar-container {
+    position: relative;
+
+    width: 100%;
+
+    margin-top: 48px;
+    margin-bottom: 16px;
+}
+
+
+/* Main coloured bar */
+
+.risk-bar {
+    display: flex;
+
+    width: 100%;
+    height: 12px;
+
+    border-radius: 10px;
+    overflow: hidden;
+
+    background: #eee;
+}
+
+.risk-low-bar {
+    width: 35%;
+    background: #4CAF50;
+}
+
+.risk-moderate-bar {
+    width: 25%;
+    background: #F4B942;
+}
+
+.risk-high-bar {
+    width: 40%;
+    background: #E64545;
+}
+
+
+/* Patient marker */
+
+.risk-marker {
+    position: absolute;
+
+    top: -5px;
+
+    transform: translateX(-50%);
+
+    width: 20px;
+    height: 20px;
+
+    border: 3px solid white;
+    border-radius: 50%;
+
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Percentage bubble */
+
+.risk-bubble {
+    position: absolute;
+    top: -48px;
+    transform: translateX(-50%);
+    color: white;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 7px 11px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.risk-bubble-arrow {
+    position: absolute;
+
+    left: 50%;
+    bottom: -7px;
+
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+}
+
+
+/* =========================
+   RISK LABELS
+   ========================= */
+
+.risk-labels {
+    display: grid;
+
+    grid-template-columns: 35% 25% 40%;
+
+    margin-top: 14px;
+
+    font-family: 'Space Grotesk', sans-serif;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.risk-label-low {
+    text-align: left;
+    color: #4CAF50;
+}
+
+.risk-label-moderate {
+    text-align: center;
+    color: #D99A22;
+}
+
+.risk-label-high {
+    text-align: right;
+    color: #E64545;
+}
+
+.risk-range {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {
+
+    .prediction-card {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 28px;
+    }
+
+    .prediction-summary,
+    .risk-section {
+        width: 100%;
+    }
+
+    .prediction-score {
+        font-size: 40px;
+    }
+
+    .prediction-description {
+        max-width: none;
+    }
+
+    .risk-section {
+        margin-top: 8px;
+    }
+
+    .risk-labels {
+        font-size: 12px;
+    }
+
+    .risk-range {
+        font-size: 11px;
+    }
+}

@@ -118,228 +118,119 @@ def render_prediction_cards(prediction_result):
 
     risk_label = prediction_result["risk_level"]
     marker_color = prediction_result["risk_color"]
+    risk_bg = prediction_result["risk_bg"]
 
     risk_percent = prob_decline * 100
-
     threshold = 0.35
+    
+    if prob_decline >= threshold:
+        interpretation = (
+            "This patient exceeds the screening threshold "
+            "and may require closer QoL monitoring."
+        )
+    else:
+        interpretation = (
+            "This patient's predicted risk is below the "
+            "screening threshold."
+        )
 
-
-    # --- OUTER CARD ---
-    with st.container(border=True):
-
-        left_col, right_col = st.columns([1, 1.7], gap="large")
-
-
-        # ==================================================
-        # LEFT SIDE — MAIN PREDICTION SUMMARY
-        # ==================================================
-        with left_col:
-
-            st.markdown(
-                """<div style="
-                    font-family:'Space Grotesk', sans-serif;
-                    font-size:17px;
-                    font-weight:650;
-                    color:#262626;
-                    margin-bottom:4px;">
+    st.markdown(
+        f"""
+        <div class="prediction-card"
+            style="
+                background:{risk_bg};
+                border:1px solid {marker_color}22;">
+            <!-- LEFT SIDE -->
+            <div class="prediction-summary">
+                <div class="prediction-title">
                     Predicted QoL Decline Risk
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-            # probability + risk label
-            st.markdown(
-                f"""
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:18px;
-                    margin-top:2px;
-                    margin-bottom:4px;">
-                    <div style="
-                        font-family:'Space Grotesk', sans-serif;
-                        font-size:48px;
-                        font-weight:750;
-                        line-height:1;
-                        color:{marker_color};
-                    ">
+                <div class="prediction-main-row">
+                    <div
+                        class="prediction-score"
+                        style="color:{marker_color};"
+                    >
                         {prob_decline:.1%}
                     </div>
-                    <div style="
-                        border:1.5px solid {marker_color};
-                        color:{marker_color};
-                        border-radius:999px;
-                        padding:6px 18px;
-                        font-family:'Space Grotesk', sans-serif;
-                        font-size:14px;
-                        font-weight:650;
-                    ">
+                    <div
+                        class="risk-badge"
+                        style="
+                            color:{marker_color};
+                            border-color:{marker_color};">
                         {risk_label}
                     </div>
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            # threshold
-            st.markdown(
-                f"""
-                <div style="
-                    font-family:'Space Grotesk', sans-serif;
-                    font-size:13px;
-                    font-weight:650;
-                    color:{marker_color};
-                    margin-top:6px;
-                ">
+                <div
+                    class="prediction-threshold"
+                    style="color:{marker_color};">
                     Threshold: {threshold:.0%}
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-            # interpretation text
-            if prob_decline >= threshold:
-                interpretation = (
-                    "This patient exceeds the screening threshold "
-                    "and may require closer QoL monitoring."
-                )
-            else:
-                interpretation = (
-                    "This patient's predicted risk is below the "
-                    "screening threshold."
-                )
-            st.markdown(
-                f"""
-                <div style="
-                    font-family:'Space Grotesk', sans-serif;
-                    font-size:13px;
-                    line-height:1.45;
-                    color:#666;
-                    margin-top:7px;
-                    max-width:340px;">
+                <div class="prediction-description">
                     {interpretation}
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        # ==================================================
-        # RIGHT SIDE — YOUR EXISTING RISK BAR
-        # ==================================================
-        with right_col:
-
-            st.markdown(f"""
-            <div style="
-                padding:24px 6px 6px 6px;
-                font-family:'Space Grotesk', sans-serif;">
-                <!-- Risk bar container -->
-                <div style="
-                    position:relative;
-                    width:100%;
-                    margin-top:22px;
-                    margin-bottom:14px;">
+            </div>
+            <!-- RIGHT SIDE -->
+            <div class="risk-section">
+                <div class="risk-bar-container">
                     <!-- Percentage bubble -->
-                    <div style="
-                        position:absolute;
-                        left:{risk_percent:.1f}%;
-                        top:-48px;
-                        transform:translateX(-50%);
-                        background:{marker_color};
-                        color:white;
-                        font-family:'Space Mono', monospace;
-                        font-size:15px;
-                        font-weight:700;
-                        padding:7px 11px;
-                        border-radius:8px;
-                        white-space:nowrap;
-                    ">
+                    <div
+                        class="risk-bubble"
+                        style="
+                            left:{risk_percent:.1f}%;
+                            background:{marker_color};">
                         {prob_decline:.1%}
-                        <div style="
-                            position:absolute;
-                            left:50%;
-                            bottom:-7px;
-                            transform:translateX(-50%);
-                            width:0;
-                            height:0;
-                            border-left:7px solid transparent;
-                            border-right:7px solid transparent;
-                            border-top:7px solid {marker_color};
-                        ">
+                        <div
+                            class="risk-bubble-arrow"
+                            style="
+                                border-top:
+                                7px solid {marker_color};
+                            ">
                         </div>
                     </div>
-                    <!-- Multicolor risk bar -->
-                    <div style="
-                        display:flex;
-                        width:100%;
-                        height:12px;
-                        border-radius:10px;
-                        overflow:hidden;
-                        background:#eee;
-                    ">
-                        <div style="
-                            width:35%;
-                            background:#4CAF50;
-                        "></div>
-                        <div style="
-                            width:25%;
-                            background:#F4B942;
-                        "></div>
-                        <div style="
-                            width:40%;
-                            background:#E64545;
-                        "></div>
+                    <!-- Risk bar -->
+                    <div class="risk-bar">
+                        <div class="risk-low-bar"></div>
+                        <div class="risk-moderate-bar"></div>
+                        <div class="risk-high-bar"></div>
                     </div>
-                    <!-- Position marker -->
-                    <div style="
-                        position:absolute;
-                        left:{risk_percent:.1f}%;
-                        top:-5px;
-                        transform:translateX(-50%);
-                        width:20px;
-                        height:20px;
-                        background:{marker_color};
-                        border:3px solid white;
-                        border-radius:50%;
-                        box-shadow:0 1px 5px rgba(0,0,0,0.25);
-                    ">
+                    <!-- Current patient marker -->
+                    <div
+                        class="risk-marker"
+                        style="
+                            left:{risk_percent:.1f}%;
+                            background:{marker_color};
+                        ">
                     </div>
                 </div>
-                <!-- Risk labels -->
-                <div style="
-                    display:grid;
-                    grid-template-columns:35% 25% 40%;
-                    margin-top:14px;
-                    font-size:13px;
-                    font-weight:600;
-                ">
-                    <div style="
-                        text-align:left;
-                        color:#4CAF50;">
-                        Low Risk<br>
-                        <span style="
-                            font-size:12px;
-                            font-weight:500;">(0%)
+                <!-- Risk range labels -->
+                <div class="risk-labels">
+                    <div class="risk-label-low">
+                        Low Risk
+                        <br>
+                        <span class="risk-range">
+                            0–34%
                         </span>
                     </div>
-                    <div style="
-                        text-align:center;
-                        color:#D99A22;">
-                        Moderate Risk<br>
-                        <span style="
-                            font-size:12px;
-                            font-weight:500;">(35%)
+                    <div class="risk-label-moderate">
+                        Moderate Risk
+                        <br>
+                        <span class="risk-range">
+                            35–59%
                         </span>
                     </div>
-                    <div style="
-                        text-align:right;
-                        color:#E64545;">High Risk<br>
-                        <span style="
-                            font-size:12px;
-                            font-weight:500;">(100%)
+                    <div class="risk-label-high">
+                        High Risk
+                        <br>
+                        <span class="risk-range">
+                            60–100%
                         </span>
                     </div>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
         
 
 # --------ACTUAL VS PREDICTION outcome (r2) ----------------

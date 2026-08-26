@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from utils.styles import load_styles
+from utils.styles import load_styles,load_css
 from components.topbar import top_bar  
 from utils.predict import get_prediction
 from components.risk_tab import render_risk_prediction_tab
@@ -14,6 +14,7 @@ from utils.supabase_client import get_supabase_client
 st.set_page_config(page_title="QoL Risk Prediction", layout="wide",page_icon="🏥")
 
 load_styles()
+load_css("styles/main.css")
 
 supabase = get_supabase_client()
 

@@ -78,16 +78,19 @@ def get_prediction(patient_id, threshold=0.35):
     predicted_class = "Decline" if prob_decline >= threshold else "No Decline"
     
     if prob_decline < 0.35:
-        risk_level = "Low Risk"
-        risk_color = "#2e8b57"
+        risk_label = "Low Risk"
+        risk_color = "#4CAF50"
+        risk_bg = "#F1FAF2"
 
     elif prob_decline < 0.60:
-        risk_level = "Moderate Risk"
-        risk_color = "#f0a202"
+        risk_label = "Moderate Risk"
+        risk_color = "#F4B942"
+        risk_bg = "#FFF8E8"
 
     else:
-        risk_level = "High Risk"
-        risk_color = "#d9534f"
+        risk_label = "High Risk"
+        risk_color = "#E64545"
+        risk_bg = "#FFF0F0"
     
     # =========================================================
     # ADDED: SHAP EXPLAINABILITY PART
@@ -162,8 +165,9 @@ def get_prediction(patient_id, threshold=0.35):
         "prob_no_decline": prob_no_decline,
         "threshold": threshold,
         
-        "risk_level": risk_level,
+        "risk_level": risk_label,
         "risk_color": risk_color,
+        "risk_bg": risk_bg,
     
         # =====================================================
         # ADDED: return SHAP values + feature values
