@@ -10,10 +10,10 @@ from utils.model_loader import (
 
 
 @st.cache_data(ttl=300)
-def load_model_data():
+def load_demo_model_data():
     supabase = get_supabase_client()
     
-    response = supabase.table("model_ready_patients").select("*").execute()
+    response = supabase.table("demo_model_ready_patients").select("*").execute()
     data = response.data
     
     df = pd.DataFrame(data)
@@ -37,7 +37,9 @@ def get_prediction(patient_id, threshold=0.35):
     model = load_model()
     label_encoder = load_label_encoder()
     feature_columns = load_feature_columns()
-    model_df = load_model_data()
+    
+    #DEMO DATA (instead of using real patient's info)
+    model_df = load_demo_model_data()
 
     patient_id = str(patient_id).strip()
 
@@ -74,6 +76,18 @@ def get_prediction(patient_id, threshold=0.35):
     prob_no_decline = float(prob_dict.get("no_decline", 0.0))
 
     predicted_class = "Decline" if prob_decline >= threshold else "No Decline"
+    
+    if prob_decline < 0.35:
+        risk_level = "Low Risk"
+        risk_color = "#2e8b57"
+
+    elif prob_decline < 0.60:
+        risk_level = "Moderate Risk"
+        risk_color = "#f0a202"
+
+    else:
+        risk_level = "High Risk"
+        risk_color = "#d9534f"
     
     # =========================================================
     # ADDED: SHAP EXPLAINABILITY PART
@@ -146,6 +160,10 @@ def get_prediction(patient_id, threshold=0.35):
         "predicted_class": predicted_class,
         "prob_decline": prob_decline,
         "prob_no_decline": prob_no_decline,
+        "threshold": threshold,
+        
+        "risk_level": risk_level,
+        "risk_color": risk_color,
     
         # =====================================================
         # ADDED: return SHAP values + feature values
@@ -163,7 +181,7 @@ import numpy as np
 
 @st.cache_resource
 def load_lime_explainer():
-    model_df = load_model_data()
+    model_df = load_demo_model_data()
     feature_columns = load_feature_columns()
 
     X_train_like = model_df[feature_columns]
@@ -180,7 +198,7 @@ def load_lime_explainer():
 def get_lime_explanation(patient_id, num_features=5):
     model = load_model()
     feature_columns = load_feature_columns()
-    model_df = load_model_data()
+    model_df = load_demo_model_data()
     lime_explainer = load_lime_explainer()
 
     patient_id = str(patient_id).strip()

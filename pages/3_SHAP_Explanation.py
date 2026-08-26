@@ -19,7 +19,7 @@ supabase = get_supabase_client()
 
 @st.cache_data(ttl=300)
 def load_patients():
-    response = supabase.table("patients").select("*").execute()
+    response = supabase.table("demo_patients").select("*").execute()
     return pd.DataFrame(response.data)
 
 df = load_patients()
