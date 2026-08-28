@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from utils.styles import load_styles
+from utils.styles import load_css
 from components.cards import metric_cards, section_header
 from components.patient_detail_cards import patient_summary_cards
 from utils.supabase_client import get_supabase_client
@@ -153,7 +153,7 @@ df["outcome_label"] = (
 # STYLES + HEADER
 # =========================================================
 
-load_styles()
+load_css("styles/main.css")
 
 st.title("💾 Patient Records")
 

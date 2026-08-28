@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from utils.styles import load_styles
+from utils.styles import load_css
 from components.cards import (
     colored_card,
     colored_border_card,
@@ -100,7 +100,7 @@ def home():
     # LOAD DASHBOARD STYLES
     # -----------------------------------------------------
 
-    load_styles()
+    load_css("styles/main.css")
 
     # =====================================================
     # DASHBOARD HEADER

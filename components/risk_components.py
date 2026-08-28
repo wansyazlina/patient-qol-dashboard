@@ -142,6 +142,10 @@ def render_prediction_cards(prediction_result):
                 border:1px solid {marker_color}22;">
             <!-- LEFT SIDE -->
             <div class="prediction-summary">
+                <div class="ai-prediction-header">
+                    <span class="ai-prediction-icon">🧠</span>
+                    <span class="ai-prediction-title">AI Prediction</span>
+                </div>
                 <div class="prediction-title">
                     Predicted QoL Decline Risk
                 </div>
@@ -160,13 +164,16 @@ def render_prediction_cards(prediction_result):
                         {risk_label}
                     </div>
                 </div>
-                <div
-                    class="prediction-threshold"
-                    style="color:{marker_color};">
-                    Threshold: {threshold:.0%}
-                </div>
-                <div class="prediction-description">
-                    {interpretation}
+                <!-- Threshold + Interpretation on same row -->
+                <div class="prediction-info-row">
+                    <div
+                        class="prediction-threshold"
+                        style="color:{marker_color};">
+                        Threshold: {threshold:.0%}
+                    </div>
+                    <div class="prediction-description">
+                        {interpretation}
+                    </div>
                 </div>
             </div>
             <!-- RIGHT SIDE -->
@@ -329,7 +336,6 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
         padding: 18px;
         min-height: 180px;
         height: 100%;
-        font-family: 'Space Grotesk', sans-serif;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
@@ -350,8 +356,7 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
                         border-radius:12px;
                         padding:18px;
                         border-left:6px solid #d4a017;
-                        min-height:180px;
-                        font-family:'Space Grotesk', sans-serif;">
+                        min-height:180px;">
                         <div style="font-size:20px; color:#666; margin-bottom:10px;">
                         Actual Outcome (Discharge)</div>
                     <div style="font-size:16px;
@@ -372,8 +377,7 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
             border-radius:12px;
             padding:18px;
             border-left:6px solid #6c8ebf;
-            min-height:180px;
-            font-family:'Space Grotesk', sans-serif;">
+            min-height:180px;">
             <div style="font-size:20px; color:#666; margin-bottom:10px;">
                 Actual Outcome (Discharge)
             </div>
@@ -384,8 +388,7 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
                 display:flex;
                 align-items:center;
                 gap:10px;
-                margin-bottom:14px;
-                font-family:'Space Mono', monospace;">
+                margin-bottom:14px;">
                 <div style="
                     background:#f4f4f4;
                     padding:6px 10px;
@@ -424,7 +427,6 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
             padding:18px;
             border-left:6px solid {match_color};
             min-height:180px;
-            font-family:'Space Grotesk', sans-serif;
         ">
             <div style="font-size:20px; color:#666; margin-bottom:10px;">
                 Model vs Actual
@@ -480,7 +482,7 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
                 <div style="font-size:15px; font-weight:700; color:#5b3d8a;">
                     {display_name}
                 </div>
-                <div style="font-size:12px; font-family:'Space Mono', monospace; color:#7a5bb3; white-space:nowrap;">
+                <div style="font-size:12px; color:#7a5bb3; white-space:nowrap;">
                     value: {feature_value}
                 </div>
             </div>
@@ -499,7 +501,6 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
             padding:18px;
             border-left:6px solid #8e6bbf;
             min-height:180px;
-            font-family:'Space Grotesk', sans-serif;
         ">
             <div style="font-size:20px; color:#666; margin-bottom:12px;">
                 Top Decline Risk Contributors
@@ -514,7 +515,6 @@ def render_clinical_info_table(patient_row):
 
     st.markdown("""
     <h3 style="
-        font-family:'Space Grotesk', sans-serif;
         margin-bottom:10px;
         margin-top:20px">
         Patient Clinical Info
@@ -599,7 +599,6 @@ def render_clinical_info_table(patient_row):
     <table style="
         width:100%;
         border-collapse:collapse;
-        font-family:'Space Grotesk', sans-serif;
         background:white;
         border-radius:12px;
         overflow:hidden;

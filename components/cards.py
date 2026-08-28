@@ -12,7 +12,6 @@ def section_header(title, icon="insights"):
         
         <div style="margin-top: 20px;">
             <h4 style="margin: 0;padding: 0;
-                font-family: 'Space Grotesk', sans-serif;
                 line-height: 1.2;
                 display: flex;
                 align-items: center;
@@ -33,7 +32,7 @@ def colored_card(title, value, color):
         margin-bottom: 20px;  /* 👈 THIS ADDS SPACE */
     ">
         <p style="margin:0; font-size:14px; opacity:0.8;">{title}</p>
-        <h2 style="margin:5px 0 0 0; font-family: 'Space Grotesk', sans-serif; ">{value}</h2>
+        <h2 style="margin:5px 0 0 0;">{value}</h2>
     </div>
     """, unsafe_allow_html=True)
 
@@ -45,7 +44,6 @@ def colored_border_card(title, value, bg_color, accent_color):
         border-radius: 12px;
         border: 1px solid rgba(0,0,0,0.06);
         margin-bottom: 30px;  /* 👈 THIS ADDS SPACE */
-        font-family: 'Space Mono', monospace;
     ">
     <div style="
         height: 4px;
@@ -61,7 +59,6 @@ def colored_border_card(title, value, bg_color, accent_color):
     <h2 style="
         margin:5px 0 0 0;
         color:#111;
-        font-family: 'Space Grotesk', sans-serif;
     ">{value}</h2>
     </div>
     """, unsafe_allow_html=True)
@@ -80,14 +77,12 @@ def metric_cards(total_records, total_male, total_female, average_age, total_dec
         }
 
         .metric-label {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
             color: #555;
             margin-bottom: 8px;
         }
 
         .metric-value {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 2rem;
             font-weight: 700;
             color: #111;
@@ -95,7 +90,6 @@ def metric_cards(total_records, total_male, total_female, average_age, total_dec
         }
 
         .metric-subtext {
-            font-family: 'Space Mono', monospace;
             font-size: 0.85rem;
             color: #666;
             margin-top: 6px;
@@ -115,7 +109,6 @@ def metric_cards(total_records, total_male, total_female, average_age, total_dec
             gap: 6px;
             padding: 6px 10px;
             border-radius: 999px;
-            font-family: 'Space Mono', monospace;
             font-size: 0.85rem;
             font-weight: 600;
         }

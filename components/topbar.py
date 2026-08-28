@@ -34,7 +34,6 @@ def top_bar(title="QoL Risk Prediction"):
         color: white;
         font-size: 22px;
         font-weight: 600;
-        font-family: 'Space Mono', monospace;
     }
 
     </style>

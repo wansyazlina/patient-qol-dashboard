@@ -49,7 +49,6 @@ def render_explainability_header(patient_row, prediction_result):
             border-radius:16px;
             overflow:hidden;
             box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            font-family:'Space Grotesk', sans-serif;
             min-height:150px;">
             <div style="
                 background:#dfeafc;
@@ -103,7 +102,6 @@ def render_explainability_header(patient_row, prediction_result):
             border-radius:16px;
             overflow:hidden;
             box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            font-family:'Space Grotesk', sans-serif;
             min-height:150px;
         ">
             <div style="
@@ -140,7 +138,6 @@ def render_explainability_header(patient_row, prediction_result):
                 <div style="font-size:18px;">
                     Confidence:
                     <span style="
-                        font-family:'Space Mono', monospace;
                         font-weight:700;
                         font-size:20px;
                         color:#3a4b6a;
@@ -222,7 +219,6 @@ def render_shap_local_section(patient_row, prediction_result):
         border-radius:16px;
         overflow:hidden;
         margin-top:18px;
-        font-family:'Space Grotesk', sans-serif;
     ">
         <div style="
             background:#7ea6e6;
@@ -284,7 +280,6 @@ def render_shap_local_section(patient_row, prediction_result):
                         background:{bar_color};"></div>
                 </div>
                 <div style="
-                    font-family:'Space Mono', monospace;
                     font-size:14px;
                     font-weight:700;
                     color:{value_color};">
@@ -299,8 +294,7 @@ def render_shap_local_section(patient_row, prediction_result):
             border-radius:14px;
             padding:18px;
             min-height:390px;
-            box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            font-family:'Space Grotesk', sans-serif;">
+            box-shadow:0 1px 4px rgba(0,0,0,0.04);">
             <div style="
                 font-size:18px;
                 font-weight:700;
@@ -327,8 +321,7 @@ def render_shap_local_section(patient_row, prediction_result):
                 border:1px solid #d9e1ef;
                 border-radius:14px;
                 padding:18px;
-                box-shadow:0 1px 4px rgba(0,0,0,0.04);
-                font-family:'Space Grotesk', sans-serif;">
+                box-shadow:0 1px 4px rgba(0,0,0,0.04);">
                 <div style="
                     font-size:18px;
                     font-weight:700;

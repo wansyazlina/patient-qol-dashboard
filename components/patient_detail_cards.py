@@ -45,11 +45,11 @@ def render_summary_item(title, value, colors, icon=""):
 
     html = f"""
 <div style="border-left:5px solid {colors['accent']}; padding-left:14px; margin-bottom:18px;">
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-family:'Space Grotesk', sans-serif; font-size:1.05rem; font-weight:700; color:#1f2937;">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;font-size:1.05rem; font-weight:700; color:#1f2937;">
         <span style="font-size:1.1rem;">{icon}</span>
         <span>{title}</span>
     </div>
-    <span style="display:block; font-family:'Space Grotesk', sans-serif; font-size:1.8rem; font-weight:700; color:{colors['text']}; line-height:1.1; margin-left:2px;">{value}</span>
+    <span style="display:block; font-size:1.8rem; font-weight:700; color:{colors['text']}; line-height:1.1; margin-left:2px;">{value}</span>
 </div>
 """
     st.markdown(html, unsafe_allow_html=True)
@@ -60,11 +60,11 @@ def render_label_badge(label_value):
 
     html = f"""
 <div style="border-left:5px solid {colors['accent']}; padding-left:14px; margin-bottom:18px;">
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Space Grotesk', sans-serif; font-size:1.05rem; font-weight:700; color:#1f2937;">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:1.05rem; font-weight:700; color:#1f2937;">
         <span style="font-size:1.1rem;">📊</span>
         <span>Outcome Label</span>
     </div>
-    <span style="display:inline-block; padding:10px 18px; border-radius:999px; background:{colors['bg']}; color:{colors['text']}; font-family:'Space Grotesk', sans-serif; font-size:1rem; font-weight:700; border:1px solid {colors['accent']}; box-shadow:0 2px 8px rgba(0,0,0,0.04);">{colors['display']}</span>
+    <span style="display:inline-block; padding:10px 18px; border-radius:999px; background:{colors['bg']}; color:{colors['text']}; font-size:1rem; font-weight:700; border:1px solid {colors['accent']}; box-shadow:0 2px 8px rgba(0,0,0,0.04);">{colors['display']}</span>
 </div>
 """
     st.markdown(html, unsafe_allow_html=True)
