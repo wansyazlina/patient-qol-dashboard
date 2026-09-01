@@ -1,9 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+/* =========================
+   GLOBAL TYPOGRAPHY
+   ========================= */
+
+:root {
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-heading: 'Space Mono', monospace;
+}
+
+
+/* Default everything in the app to Space Grotesk */
+
+.stApp {
+    font-family: var(--font-body);
+}
+
+/* Normal body elements */
+p,
+li,
+label,
+input,
+textarea,
+button {
+    font-family: var(--font-body);
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading) !important;
+}
+
+/* Reusable heading classes */
+.card-title,
+.section-title,
+.metric-title,
+.patient-name,
+.ai-prediction-title,
+.prediction-title {
+    font-family: var(--font-heading) !important;
+}
+
+/* Reusable body/result classes */
+.card-body,
+.result-text,
+.metric-value,
+.prediction-score,
+.prediction-description,
+.prediction-threshold,
+.risk-badge,
+.badge,
+.patient-id,
+.risk-labels {
+    font-family: var(--font-body) !important;
+}
+
+
+/* Do not break icons */
+.material-symbols-rounded {
+    font-family: 'Material Symbols Rounded' !important;
+}
+
+
 /* =========================
    SPACING
    ========================= */
 .card-spacing {
     height: 24px;
 }
+
+.patient-details,
+.patient-prediction {
+    font-size: 1rem;
+    font-family: var(--font-body);
+    margin-top: 0.5rem;
+}
+
+
 
 
 /* =========================
@@ -14,7 +92,6 @@
     background: white;
     border-radius: 12px;
     padding: 22px;
-
     display: flex;
     align-items: center;
     gap: 40px;
@@ -22,8 +99,26 @@
 
 
 /* =========================
-   LEFT SIDE
+   LEFT SIDE of PREDICTION CARD SECTION
    ========================= */
+
+.ai-prediction-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.ai-prediction-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.ai-prediction-title {
+    font-size: 1.55rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
 
 .prediction-summary {
     flex: 1;
@@ -31,9 +126,10 @@
 }
 
 .prediction-title {
+    font-size: 1.00rem;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
+    margin-bottom: 10px;
+    font-weight: 500;
     color: #262626;
 }
 
@@ -55,35 +151,31 @@
 
 .risk-badge {
     font-family: 'Space Grotesk', sans-serif;
-
     border: 1.5px solid;
     border-radius: 999px;
-
     padding: 6px 16px;
-
     font-size: 14px;
     font-weight: 600;
 }
+
+
 
 .prediction-threshold {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 13px;
     font-weight: 600;
-
+    white-space: nowrap;
     margin-top: 10px;
 }
 
 .prediction-description {
     font-family: 'Space Grotesk', sans-serif;
-
     font-size: 13px;
     line-height: 1.5;
-
     color: #666;
-
     margin-top: 8px;
-
     max-width: 320px;
+    flex: 1;
 }
 
 
@@ -223,6 +315,548 @@
     font-weight: 500;
 }
 
+/* =========================
+   EQUAL HEIGHT CARDS
+   ========================= */
+
+.equal-height-card,
+.observed-outcome-card {
+    min-height: 400px;
+    box-sizing: border-box;
+}
+
+/* =========================
+   OBSERVED OUTCOME CARD
+   ========================= */
+
+.observed-outcome-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.4rem;
+    border-left: 6px solid #4A90E2;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  
+}
+
+
+/* =========================
+   HEADER
+   ========================= */
+
+.observed-outcome-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.observed-outcome-icon {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+
+    background: #4A90E2;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.4rem;
+
+    flex-shrink: 0;
+}
+
+.observed-outcome-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #17233c;
+}
+
+.observed-outcome-subtitle {
+    font-size: 0.9rem;
+    color: #667085;
+    margin-top: 0.15rem;
+}
+
+
+/* =========================
+   OBSERVED OUTCOME GRID
+   ========================= */
+
+.observed-outcome-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(120px, 1fr));
+
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Individual cards */
+.outcome-metric-card {
+    width: 100%;
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    border-radius: 12px;
+    padding: 1.1rem;
+}
+
+
+/* =========================
+   SHARED METRIC CARD
+   ========================= */
+
+.outcome-metric-card {
+    border-radius: 12px;
+    padding: 1rem;
+
+    border: 1px solid #e5e7eb;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
+}
+
+.outcome-metric-label {
+    font-size: 0.9rem;
+    color: #555;
+
+    margin-bottom: 0.5rem;
+}
+
+.outcome-metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+
+/* =========================
+   ADMISSION
+   ========================= */
+
+.admission-card {
+    background: #fbfdff;
+    border-color: #dce6f5;
+
+    text-align: center;
+}
+
+.admission-value {
+    color: #3478db;
+}
+
+
+/* =========================
+   DISCHARGE
+   ========================= */
+
+.discharge-card {
+    background: #fcfffc;
+    border-color: #dfe8df;
+
+    text-align: center;
+}
+
+.discharge-value {
+    color: #31a354;
+}
+
+
+/* =========================
+   ACTUAL OUTCOME
+   ========================= */
+
+.actual-outcome-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.actual-outcome-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.actual-outcome-icon {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: white;
+
+    font-size: 1.2rem;
+    font-weight: 700;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   OUTCOME STATUS COLOURS
+   ========================= */
+
+.outcome-good {
+    color: #2e8b57;
+}
+
+.actual-outcome-icon.outcome-good {
+    background: #2e8b57;
+    color: white;
+}
+
+.outcome-bad {
+    color: #d9534f;
+}
+
+.actual-outcome-icon.outcome-bad {
+    background: #d9534f;
+    color: white;
+}
+
+.outcome-pending {
+    color: #d4a017;
+}
+
+.actual-outcome-icon.outcome-pending {
+    background: #d4a017;
+    color: white;
+}
+
+
+/* =========================
+   DIVIDER
+   ========================= */
+
+.outcome-divider {
+    height: 1px;
+
+    background: #e5e7eb;
+
+    margin-bottom: 1.25rem;
+}
+
+/* =========================
+   MODEL COMPARISON CARD
+   ========================= */
+
+.comparison-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem 1.2rem;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.comparison-card-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comparison-card-icon img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.comparison-card-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.comparison-card-title {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #17233c;
+}
+
+.comparison-card-description {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #667085;
+}
+
+.discharge-value-pending {
+    color: #9ca3af;
+}
+
+.discharge-value-score {
+    color: #e75480;
+}
+
+/* ================================
+   MODEL COMPARISON
+================================ */
+
+.model-comparison {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    padding: 20px 22px;
+    margin-top: 18px;
+
+    border-radius: 12px;
+    border: 1px solid #d7e2f1;
+}
+
+
+/* Text section */
+.comparison-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comparison-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #163a6b;
+}
+
+.comparison-note {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #344054;
+}
+
+
+/* ================================
+   STATUS ICON
+================================ */
+
+.comparison-status-icon {
+    width: 48px;
+    height: 48px;
+
+    min-width: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 27px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+
+/* Pending / information */
+.pending-icon {
+    background: #2f73d9;
+    color: white;
+
+    /* makes lowercase i look closer to
+       a Material information icon */
+    font-family: Arial, sans-serif;
+    font-size: 25px;
+}
+
+
+/* Prediction correct */
+.correct-icon {
+    background: #2e8b57;
+    color: white;
+}
+
+
+/* Prediction incorrect */
+.incorrect-icon {
+    background: #d9534f;
+    color: white;
+}
+
+
+/* ================================
+   OPTIONAL STATUS BACKGROUNDS
+================================ */
+
+.comparison-pending {
+    background: #f8fbff;
+    border-color: #cfe0f8;
+}
+
+.comparison-correct {
+    background: #f5fbf7;
+    border-color: #c9e8d4;
+}
+
+.comparison-incorrect {
+    background: #fff7f7;
+    border-color: #f0cccc;
+}
+
+/* =========================================
+   TOP 3 RISK CONTRIBUTOR ITEM
+========================================= */
+
+.risk-factor-item {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #f8f6fc;
+
+    border-radius: 10px;
+
+    padding: 12px 14px;
+
+    margin-bottom: 10px;
+
+    gap: 16px;
+}
+
+
+/* =========================================
+   LEFT ICON COLUMN
+========================================= */
+.risk-factor-icon-column {
+    flex: 0 0 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.risk-feature-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border-radius: 0;
+
+    width: auto;
+    height: auto;
+}
+
+.risk-feature-icon {
+    width: 52px;
+    height: 52px;
+
+    object-fit: contain;
+    display: block;
+}
+
+
+/* =========================================
+   RIGHT CONTENT
+========================================= */
+
+.risk-factor-content {
+    flex: 1;
+
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================
+   FEATURE NAME + VALUE
+========================================= */
+
+.risk-factor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 3px;
+}
+
+
+.risk-factor-name {
+    font-size: 15px;
+
+    font-weight: 700;
+
+    color: #5b3d8a;
+}
+
+
+.risk-factor-value {
+    font-size: 12px;
+
+    color: #7a5bb3;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   DESCRIPTION
+========================================= */
+
+.risk-factor-description {
+    font-size: 12px;
+
+    color: #555;
+
+    line-height: 1.45;
+
+    margin-bottom: 8px;
+}
+
+
+/* =========================================
+   SHAP CONTRIBUTION BAR
+========================================= */
+
+.risk-factor-bar-background {
+    width: 100%;
+
+    height: 8px;
+
+    background: #e9e1f5;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+.risk-factor-bar-fill {
+    height: 100%;
+
+    background: #8e6bbf;
+
+    border-radius: 8px;
+}
 
 /* =========================
    MOBILE
@@ -232,9 +866,7 @@
 
     .prediction-card {
         flex-direction: column;
-
         align-items: stretch;
-
         gap: 28px;
     }
 
@@ -262,4 +894,14 @@
     .risk-range {
         font-size: 11px;
     }
+
+
+}
+
+@media (max-width: 520px) {
+
+    .observed-outcome-grid {
+        grid-template-columns: 1fr;
+    }
+
 }

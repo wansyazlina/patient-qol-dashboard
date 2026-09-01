@@ -1,6 +1,88 @@
 import streamlit as st
 import pandas as pd
 from utils.explain import get_top_risk_factors
+import base64
+from pathlib import Path
+
+FEATURE_ICONS = {
+
+    # Overall QoL
+    "qol_pre_total":
+        "assets/feature_icons/DATA.svg",
+
+    # Burden / symptom load
+    "adm_total_burden":
+        "assets/feature_icons/gender.svg",
+
+    # Functional ability
+    "adm_function_score":
+        "assets/feature_icons/mobility.svg",
+
+    # Demographics
+    "age":
+        "assets/feature_icons/age.svg",
+
+    "gender":
+        "assets/feature_icons/gender.svg",
+
+    # Daily activities
+    "adm_normal_activity":
+        "assets/feature_icons/mobility.svg",
+
+    # Number of reported problems
+    "adm_problem_count":
+        "assets/feature_icons/pain.svg",
+
+    # Mobility
+    "adm_mobility":
+        "assets/feature_icons/pain.svg",
+
+    # Difference / change in VAS
+    "vas_gap":
+        "assets/feature_icons/pain.svg",
+
+    # Distress
+    "adm_distress_score":
+        "assets/feature_icons/age.svg",
+
+    # VAS health score
+    "adm_vas":
+        "assets/feature_icons/Data.svg",
+
+    # Severe symptom count
+    "adm_severe_count":
+        "assets/feature_icons/Data.svg",
+
+    # Personal care
+    "adm_personal_care":
+        "assets/feature_icons/Data.svg",
+
+    # Anxiety / depression
+    "adm_anxiety_depress":
+        "assets/feature_icons/anxiety.svg",
+
+    # Pain / discomfort
+    "adm_pain_uncomfort":
+        "assets/feature_icons/pain.svg",
+}
+
+def get_icon_base64(icon_path):
+    path = Path(icon_path)
+
+    if not path.exists():
+        return None
+
+    with open(path, "rb") as image_file:
+        encoded = base64.b64encode(image_file.read()).decode()
+
+    if path.suffix.lower() == ".svg":
+        mime_type = "image/svg+xml"
+    elif path.suffix.lower() == ".png":
+        mime_type = "image/png"
+    else:
+        return None
+
+    return f"data:{mime_type};base64,{encoded}"
 
 
 def render_patient_summary_cards(patient_row, prediction_result):
@@ -18,7 +100,7 @@ def render_patient_summary_cards(patient_row, prediction_result):
         border: 1px solid #ecece6;
     }
     .patient-name {
-        font-size: 22px;
+        font-size: 19px;
         font-weight: 700;
         margin-bottom: 4px;
     }
@@ -88,28 +170,33 @@ def render_patient_summary_cards(patient_row, prediction_result):
     initial = str(name)[0].upper() if name else "P"
 
     st.markdown(f"""
-    <div style="display:flex; align-items:center; gap:15px; 
-            padding:15px; background:white; border-radius:10px;
+    <div style="display:flex; align-items:center; gap:20px; 
+            padding: 20px 30px; background:white; border-radius:10px;
             border-left:5px solid {border_color};">
         <!-- Avatar -->
         <div style="
-            width:60px; height:60px; border-radius:50%;
+            width:80px; height:80px; border-radius:50%;
             background:#e0e0e0;
             display:flex; align-items:center; justify-content:center;
-            font-weight:bold; font-size:20px;">
+            font-weight:bold; font-size:30px;">
             {initial}
         </div>
         <!-- Info -->
         <div>
-            <div style="font-weight:600; font-size:16px;">{name}</div>
-            <div style="color:gray; font-size:13px;">Patient ID: {patient_id}</div>
-            <div style="margin-top:6px;">Age: {age} {gender_badge} {status_badge}</div>
-            <div style="margin-top:6px;"><b>Prediction:</b> {pred_badge}</div>
+            <div class="patient-name">{name}</div>
+            <div class="patient-id">Patient ID: {patient_id}</div>
+           <div class="patient-details">
+                Age: {age} {gender_badge} {status_badge}
+            </div>
+            <div class="patient-prediction">
+                <b>Prediction:</b> {pred_badge}
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
 # ---RISK TAB --- FUNCTION CALL on 3_SHAP_explanation page
+
 
 def render_prediction_cards(prediction_result):
 
@@ -142,6 +229,10 @@ def render_prediction_cards(prediction_result):
                 border:1px solid {marker_color}22;">
             <!-- LEFT SIDE -->
             <div class="prediction-summary">
+                <div class="ai-prediction-header">
+                    <span class="ai-prediction-icon">🧠</span>
+                    <span class="ai-prediction-title">AI Prediction</span>
+                </div>
                 <div class="prediction-title">
                     Predicted QoL Decline Risk
                 </div>
@@ -160,13 +251,16 @@ def render_prediction_cards(prediction_result):
                         {risk_label}
                     </div>
                 </div>
-                <div
-                    class="prediction-threshold"
-                    style="color:{marker_color};">
-                    Threshold: {threshold:.0%}
-                </div>
-                <div class="prediction-description">
-                    {interpretation}
+                <!-- Threshold + Interpretation on same row -->
+                <div class="prediction-info-row">
+                    <div
+                        class="prediction-threshold"
+                        style="color:{marker_color};">
+                        Threshold: {threshold:.0%}
+                    </div>
+                    <div class="prediction-description">
+                        {interpretation}
+                    </div>
                 </div>
             </div>
             <!-- RIGHT SIDE -->
@@ -237,9 +331,9 @@ def render_prediction_cards(prediction_result):
 
 
 def render_actual_outcome_match_cards(patient_row, prediction_result):
-    
-    #-----MAKING SURE it detect no_decline and no decline
-    
+
+    # ----- MAKING SURE it detects no_decline and no decline -----
+
     raw_predicted = prediction_result.get("predicted_class", "")
     raw_actual = patient_row.get("label", "")
 
@@ -258,18 +352,40 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
 
     predicted_label = display_label(raw_predicted)
     actual_label = display_label(raw_actual)
-    
-    #---------
-   
-    st.markdown(f""" 
-            <hr style="border:none; border-top:3px solid rgba(0,0,0,0.08); margin-top:5px;"> 
-            """, unsafe_allow_html=True)
-    
-    # --- get values safely ---
-    patient_status = str(patient_row.get("status", "")).strip().lower()
-    actual_label = str(patient_row.get("label", "Unknown")).strip()
-    predicted_label = str(prediction_result.get(
-        "predicted_class", "Unknown")).strip()
+
+    # ---------------------------------------------------------
+    # Divider
+    # ---------------------------------------------------------
+
+    st.markdown(
+        """
+        <hr style="
+            border:none;
+            border-top:3px solid rgba(0,0,0,0.08);
+            margin:5px 0 0px 0;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ---------------------------------------------------------
+    # Get values safely
+    # ---------------------------------------------------------
+
+    patient_status = str(
+        patient_row.get("status", "")
+    ).strip().lower()
+
+    actual_label = str(
+        patient_row.get("label", "Unknown")
+    ).strip()
+
+    predicted_label = str(
+        prediction_result.get(
+            "predicted_class",
+            "Unknown"
+        )
+    ).strip()
 
     # discharge / actual outcome info
     adm_qol = patient_row.get("qol_pre_total", None)
@@ -277,244 +393,412 @@ def render_actual_outcome_match_cards(patient_row, prediction_result):
     outcome = patient_row.get("qol_change", None)
 
     # optional top risk factor
-    top_risk_factor = prediction_result.get("top_risk_factor", "Not available")
+    top_risk_factor = prediction_result.get(
+        "top_risk_factor",
+        "Not available"
+    )
 
-    # --- handle predicted label mapping if model returns 0/1 ---
+    # ---------------------------------------------------------
+    # Handle predicted label mapping if model returns 0/1
+    # ---------------------------------------------------------
+
     if predicted_label == "0":
         predicted_label = "decline"
+
     elif predicted_label == "1":
         predicted_label = "no_decline"
 
-    # --- active / discharged logic ---
+    # ---------------------------------------------------------
+    # IMPORTANT:
+    # No discharge QoL = actual outcome is still pending
+    # ---------------------------------------------------------
+
+    is_outcome_pending = (
+        pd.isna(dis_qol)
+        or str(dis_qol).strip() == ""
+    )
+
+    # You can still keep this if used elsewhere
     is_active = patient_status == "active"
 
-    # --- match logic ---
-    if is_active:
+    # ---------------------------------------------------------
+    # Match logic
+    # ---------------------------------------------------------
+
+    if is_outcome_pending:
+
         match_text = "Pending"
         match_icon = "⏳"
-        match_color = "#d4a017"
-        match_bg = "#fff8e6"
-        match_note = "Patient is still active. Actual outcome is not final yet."
+        match_color = "#3478db"
+        match_bg = "#eef5ff"
+        match_note = (
+            "The patient is still undergoing admission, "
+            "so discharge and prediction match cannot yet be evaluated."
+        )
 
     else:
-        is_match = pred_norm == actual_norm   # ✅ FIXED HERE
+
+        is_match = pred_norm == actual_norm
 
         if is_match:
+
             match_text = "Correct"
             match_icon = "✅"
             match_color = "#2e8b57"
             match_bg = "#eaf7ee"
-            match_note = f"Prediction was {predicted_label} and actual was {actual_label}."
+
+            match_note = (
+                f"Prediction was {predicted_label} "
+                f"and actual was {actual_label}."
+            )
+
         else:
+
             match_text = "Incorrect"
             match_icon = "❌"
             match_color = "#d9534f"
             match_bg = "#fdeaea"
-            match_note = f"Prediction was {predicted_label} but actual was {actual_label}."
-            
-    ##styling card length dynamic
-            
-    st.markdown("""<style>
-                /* Make columns in the same row stretch to equal height */
-                div[data-testid="stHorizontalBlock"] {
-                    align-items: stretch;}
-    /* Make each column fill available height */
-    div[data-testid="column"] > div {
-        height: 100%;
-    }
-    /* Shared equal-height card style */
-    .equal-height-card {
-        background: white;
-        border-radius: 12px;
-        padding: 18px;
-        min-height: 180px;
-        height: 100%;
-        font-family: 'Space Grotesk', sans-serif;
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
-    display_outcome = actual_label if actual_label else "N/A"
-    #clean formatting
-    display_outcome = display_outcome.replace("_", " ").title()
+            match_note = (
+                f"Prediction was {predicted_label} "
+                f"but actual was {actual_label}."
+            )
+            
+    # ---------------------------------------------------------
+    # Spacing above both cards
+    # ---------------------------------------------------------
 
-    # --- CARD 1: Actual Outcome ---
+    st.markdown(
+        "<div style='height: 18px;'></div>",
+        unsafe_allow_html=True
+    )
+
+    # ---------------------------------------------------------
+    # Equal-height card styling
+    # ---------------------------------------------------------
+    
+    
+
+    c1, c2 = st.columns(2, gap="medium")
+
+    display_outcome = (
+        actual_label
+        if actual_label
+        else "N/A"
+    )
+
+    display_outcome = (
+        display_outcome
+        .replace("_", " ")
+        .title()
+    )
+
+# =========================================================
+# CARD 1: Top Risk Contributors
+# =========================================================
+
     with c1:
-        if is_active:
-            st.markdown(f"""<div class="equal-height-card" style="
-                        background:white;
-                        border-radius:12px;
-                        padding:18px;
-                        border-left:6px solid #d4a017;
-                        min-height:180px;
-                        font-family:'Space Grotesk', sans-serif;">
-                        <div style="font-size:20px; color:#666; margin-bottom:10px;">
-                        Actual Outcome (Discharge)</div>
-                    <div style="font-size:16px;
-                    font-weight:700;
-                    color:#d4a017;
-                    margin-bottom:10px;">Patient Still Active</div>
 
-            <div class="equal-height-card" style="font-size:13px; color:#555; line-height:1.5;">
-                This patient has not been discharged yet, so the final discharge outcome is not available.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        else:
-            st.markdown(f"""
-        <div class="equal-height-card" style="
-            background:white;
-            border-radius:12px;
-            padding:18px;
-            border-left:6px solid #6c8ebf;
-            min-height:180px;
-            font-family:'Space Grotesk', sans-serif;">
-            <div style="font-size:20px; color:#666; margin-bottom:10px;">
-                Actual Outcome (Discharge)
-            </div>
-            <div style="font-size:14px; color:#444; margin-bottom:8px;">
-                QoL Score
-            </div>
-            <div style="
-                display:flex;
-                align-items:center;
-                gap:10px;
-                margin-bottom:14px;
-                font-family:'Space Mono', monospace;">
-                <div style="
-                    background:#f4f4f4;
-                    padding:6px 10px;
-                    border-radius:6px;
-                    font-weight:600;">
-                    {adm_qol if adm_qol is not None else 'N/A'}
-                </div>
-                <div style="font-size:16px; color:#888;">→</div>
-                <div style="
-                    background:#eaf7ee;
-                    padding:6px 10px;
-                    border-radius:6px;
-                    font-weight:700;">
-                    {dis_qol if dis_qol is not None else 'N/A'}
-                </div>
-            </div>
-            <div style="font-size:14px; color:#444; margin-bottom:6px;">
-                Outcome
-            </div>
-            <div class="equal-height-card" style="
-                font-size:18px;
-                font-weight:700;
-                color:#2c3e50;
-                text-transform:capitalize;">
-                {display_outcome}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # --- CARD 2: Model vs Actual ---
-    with c2:
-        st.markdown(f"""
-        <div class="equal-height-card" style=" 
-            background:{match_bg};
-            border-radius:12px;
-            padding:18px;
-            border-left:6px solid {match_color};
-            min-height:180px;
-            font-family:'Space Grotesk', sans-serif;
-        ">
-            <div style="font-size:20px; color:#666; margin-bottom:10px;">
-                Model vs Actual
-            </div>
-            <div style="margin-bottom:10px; font-size:14px; color:#444;"><b>Prediction:</b> <span style="text-transform:capitalize;">{predicted_label}</span>
-            </div>
-            <div style="margin-bottom:14px; font-size:14px; color:#444;">
-                <b>Actual:</b> <span style="text-transform:capitalize;">{actual_label if not is_active else 'Pending'}</span>
-            </div>
-            <div style="
-                font-size:20px;
-                font-weight:700;
-                color:{match_color};
-                margin-bottom:8px;
-            ">
-                {match_icon} {match_text}
-            </div>
-            <div class="equal-height-card" style="
-                font-size:13px;
-                color:#555;
-                line-height:1.5;
-            ">
-                {match_note}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # --- CARD 3: Top Risk Factor ---
-    with c3:
-        # --- CARD 3: Top Risk Contributors ---
-        top_factors = get_top_risk_factors(prediction_result, top_n=3, positive_only=True)
+        top_factors = get_top_risk_factors(
+            prediction_result,
+            top_n=3,
+            positive_only=True
+        )
 
         if not top_factors:
-            factors_html = """
-            <div style="font-size:13px; color:#555;">
+
+            factors_html = """<div style="
+                font-size:13px;
+                color:#555;">
                 No explainability data available.
-            </div>
-            """
+            </div>"""
+
         else:
-            max_abs_shap = max(abs(f["shap_value"]) for f in top_factors)
+
+            max_abs_shap = max(
+                abs(f["shap_value"])
+                for f in top_factors
+            )
 
             factors_html = ""
-            for f in top_factors:
-                display_name = f.get("display_name", f["feature"])
-                description = f.get("description", "No description available.")
-                feature_value = f.get("feature_value", "N/A")
-                shap_value = f.get("shap_value", 0)
-                bar_width = max(10, int((abs(shap_value) / max_abs_shap) * 100))
 
-                factors_html += f"""
-        <div style="background:#f8f6fc; border-radius:10px; padding:10px 12px; margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px;">
-                <div style="font-size:15px; font-weight:700; color:#5b3d8a;">
-                    {display_name}
+            for f in top_factors:
+
+                # -------------------------------------------------
+                # Feature information
+                # -------------------------------------------------
+
+                feature_name = f.get(
+                    "feature",
+                    ""
+                )
+
+                display_name = f.get(
+                    "display_name",
+                    feature_name
+                )
+
+                description = f.get(
+                    "description",
+                    "No description available."
+                )
+
+                feature_value = f.get(
+                    "feature_value",
+                    "N/A"
+                )
+
+                shap_value = f.get(
+                    "shap_value",
+                    0
+                )
+
+                # -------------------------------------------------
+                # SHAP bar width
+                # -------------------------------------------------
+
+                if max_abs_shap > 0:
+
+                    bar_width = max(10,int((abs(shap_value)/ max_abs_shap) * 100))
+
+                else:
+                    bar_width = 10
+
+                # -------------------------------------------------
+                # Feature icon
+                # -------------------------------------------------
+
+                icon_path = FEATURE_ICONS.get(
+                    feature_name
+                )
+
+                icon_src = (
+                    get_icon_base64(icon_path)
+                    if icon_path
+                    else None
+                )
+                if icon_src:
+                    icon_html = f"""<div class="risk-feature-icon-wrapper">
+                        <img
+                            src="{icon_src}"
+                            class="risk-feature-icon"
+                            alt="{display_name}"></div>"""
+                else:
+
+                    icon_html = """<div class="risk-feature-icon-wrapper">
+                        ?
+                    </div>"""
+
+
+                # -------------------------------------------------
+                # Individual contributor card
+                # -------------------------------------------------
+
+                factors_html += f"""<div class="risk-factor-item">
+                    <!-- LEFT: ICON -->
+                    <div class="risk-factor-icon-column">
+                        {icon_html}
+                    </div>
+                    <!-- RIGHT: CONTENT -->
+                    <div class="risk-factor-content">
+                        <!-- FEATURE NAME + VALUE -->
+                        <div class="risk-factor-header">
+                            <div class="risk-factor-name">
+                                {display_name}
+                            </div>
+                            <div class="risk-factor-value">
+                                Value: {feature_value}
+                            </div>
+                        </div>
+                        <!-- DESCRIPTION -->
+                        <div class="risk-factor-description">
+                            {description}
+                        </div>
+                        <!-- SHAP CONTRIBUTION BAR -->
+                        <div class="risk-factor-bar-background">
+                            <div
+                                class="risk-factor-bar-fill"
+                                style="width:{bar_width}%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>"""
+
+        # ---------------------------------------------------------
+        # Render Card 1
+        # ---------------------------------------------------------
+        
+        st.markdown(
+            f"""<div
+                class="equal-height-card"
+                style="
+                    background:white;
+                    border-radius:12px;
+                    padding:18px;
+                    border-left:6px solid #8e6bbf;
+                    min-height:300px;
+                    box-sizing:border-box;">
+                <div class="observed-outcome-header">
+                    <div
+                        class="observed-outcome-icon"
+                        style="background:#8e6bbf;">
+                        📊
+                    </div>
+                    <div>
+                        <div class="observed-outcome-title">
+                            Why this prediction?
+                        </div>
+                        <div class="observed-outcome-subtitle">
+                            Top 3 Factors contributing risks
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size:12px; font-family:'Space Mono', monospace; color:#7a5bb3; white-space:nowrap;">
-                    value: {feature_value}
+                {factors_html}
+            </div>
+            """,
+            unsafe_allow_html=True)
+    # =========================================================
+    # CARD 2: Observed Outcome
+    # =========================================================
+
+    with c2:
+        
+
+        # -----------------------------------------------------
+        # Actual outcome display
+        # -----------------------------------------------------
+
+        actual_display = (
+            "Not Available Yet"
+            if is_outcome_pending
+            else actual_label.replace("_", " ").title()
+        )
+
+        actual_color_class = (
+            "outcome-pending"
+            if is_outcome_pending
+            else "outcome-good"
+            if actual_norm == "no decline"
+            else "outcome-bad"
+            if actual_norm == "decline"
+            else "outcome-pending"
+        )
+
+        # -----------------------------------------------------
+        # Discharge display
+        # -----------------------------------------------------
+
+        discharge_display = (
+            "Pending"
+            if is_outcome_pending
+            else dis_qol
+        )
+
+        discharge_class = (
+            "discharge-value-pending"
+            if is_outcome_pending
+            else "discharge-value-score"
+        )
+
+        actual_icon = (
+            "⏳"
+            if is_outcome_pending
+            else "✓"
+        )
+        # -----------------------------------------------------
+        # Different bottom section depending on pending state
+        # -----------------------------------------------------
+
+        if is_outcome_pending:
+            comparison_html = """<div class="model-comparison comparison-pending">
+                    <div class="comparison-status-icon pending-icon">i</div>
+                    <div class="comparison-content">
+                        <div class="comparison-title">
+                            Model comparison unavailable
+                        </div>
+                        <div class="comparison-note">
+                            The patient is still undergoing admission, so discharge outcome
+                            and prediction match cannot yet be evaluated.
+                        </div>
+                    </div>
+                </div>"""
+
+        else:
+            is_match = pred_norm == actual_norm
+            if is_match:
+                comparison_html = f"""<div class="model-comparison comparison-correct">
+                        <div class="comparison-status-icon correct-icon">✓</div>
+                        <div class="comparison-content">
+                            <div class="comparison-title">
+                                Prediction matched actual outcome
+                            </div>
+                            <div class="comparison-note">
+                                Prediction was {predicted_label} and actual was {actual_label}.
+                            </div>
+                        </div>
+                    </div>"""
+
+            else:
+                comparison_html = f"""<div class="model-comparison comparison-incorrect">
+                        <div class="comparison-status-icon incorrect-icon">×</div>
+                        <div class="comparison-content">
+                            <div class="comparison-title">
+                                Prediction did not match actual outcome
+                            </div>
+                            <div class="comparison-note">
+                                Prediction was {predicted_label} and actual was {actual_label}.
+                            </div>
+                        </div>
+                    </div>"""
+        # -----------------------------------------------------
+        # Render observed outcome card
+        # -----------------------------------------------------
+
+        # Clean, single-line class attributes to avoid unintended whitespace
+        st.markdown(
+            f"""
+            <div class="observed-outcome-card">
+                <div class="observed-outcome-header">
+                    <div class="observed-outcome-icon">📋</div>
+                    <div>
+                        <div class="observed-outcome-title">Observed Outcome</div>
+                        <div class="observed-outcome-subtitle">Actual observed data</div>
+                    </div>
                 </div>
+                <div class="observed-outcome-grid">
+                    <!-- Admission QoL -->
+                    <div class="outcome-metric-card admission-card">
+                        <div class="outcome-metric-label">Admission QoL</div>
+                        <div class="outcome-metric-value admission-value">{adm_qol if pd.notna(adm_qol) else 'N/A'}</div>
+                    </div>
+                    <!-- Discharge QoL -->
+                    <div class="outcome-metric-card discharge-card">
+                        <div class="outcome-metric-label">Discharge QoL</div>
+                        <div class="outcome-metric-value {discharge_class}">{discharge_display}</div>
+                    </div>
+                    <!-- Actual Outcome -->
+                    <div class="outcome-metric-card actual-outcome-card">
+                        <div>
+                            <div class="outcome-metric-label">Actual Outcome</div>
+                            <div class="actual-outcome-value {actual_color_class}">{actual_display}</div>
+                        </div>
+                        <div class="actual-outcome-icon {actual_color_class}">{actual_icon}</div>
+                    </div>
+                </div>
+                <div class="outcome-divider"></div>
+                {comparison_html}
             </div>
-            <div style="width:100%; background:#e9e1f5; border-radius:8px; height:8px; margin-bottom:8px; overflow:hidden;">
-                <div style="width:{bar_width}%; background:#8e6bbf; height:8px; border-radius:8px;"></div>
-            </div>
-            <div style="font-size:12px; color:#555; line-height:1.45;">
-                {description}
-            </div>
-        </div>
-        """
-        st.markdown(f"""
-        <div class="equal-height-card" style="
-            background:white;
-            border-radius:12px;
-            padding:18px;
-            border-left:6px solid #8e6bbf;
-            min-height:180px;
-            font-family:'Space Grotesk', sans-serif;
-        ">
-            <div style="font-size:20px; color:#666; margin-bottom:12px;">
-                Top Decline Risk Contributors
-            </div>
-            {factors_html}
-        </div>
-        """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True,
+        )
                     
 # --------Show Clinical Patient Records---------------
+
 
 def render_clinical_info_table(patient_row):
 
     st.markdown("""
     <h3 style="
-        font-family:'Space Grotesk', sans-serif;
         margin-bottom:10px;
         margin-top:20px">
         Patient Clinical Info
@@ -599,7 +883,6 @@ def render_clinical_info_table(patient_row):
     <table style="
         width:100%;
         border-collapse:collapse;
-        font-family:'Space Grotesk', sans-serif;
         background:white;
         border-radius:12px;
         overflow:hidden;

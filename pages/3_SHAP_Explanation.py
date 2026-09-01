@@ -106,7 +106,7 @@ if search_value:
 
 
         # --- TABS ---
-        tab1, tab2 = st.tabs(["📊 Risk Prediction", "🧠 Explainability (SHAP & LIME)"])
+        tab1, tab2 = st.tabs(["📊 Risk Prediction", "🧠 Clinical Insights & Recommendations"])
 
         with tab1:
             if prediction_result is None:
