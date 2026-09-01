@@ -24,6 +24,8 @@ def load_patients():
 
 df = load_patients()
 
+
+
 st.markdown(
     """
     <div style="
@@ -75,51 +77,90 @@ if search_value:
             df["name"].astype(str).str.contains(search_value, case=False, na=False)
         ]
 
-
 st.markdown("---")
-
 
 # -------------------------------
 # RESULT SECTION
 # -------------------------------
 if search_value:
+
     if filtered_df.empty:
         st.warning("No patient found.")
+
     else:
         st.success(f"Found {len(filtered_df)} patient(s).")
 
         # let user choose one
         if len(filtered_df) > 1:
+
             selected_patient_id = st.selectbox(
                 "Select patient",
                 filtered_df["patient_id"].astype(str).tolist()
             )
+
             patient_row = filtered_df[
-                filtered_df["patient_id"].astype(str) == selected_patient_id
+                filtered_df["patient_id"].astype(str)
+                == selected_patient_id
             ].iloc[0]
+
         else:
             patient_row = filtered_df.iloc[0]
 
-        # get model prediction
-        patient_id = str(patient_row["patient_id"]).strip()
+        # --------------------------------
+        # SAVE CURRENT PATIENT
+        # --------------------------------
+
+        patient_id = str(
+            patient_row["patient_id"]
+        ).strip()
+
+        patient_name = str(
+            patient_row["name"]
+        ).strip()
+
+        previous_patient_id = st.session_state.get(
+            "selected_patient_id"
+        )
+
+        st.session_state.selected_patient_id = patient_id
+        st.session_state.selected_patient_name = patient_name
+
+        # redraw sidebar immediately
+        if previous_patient_id != patient_id:
+            st.rerun()
+
+        # --------------------------------
+        # GET MODEL PREDICTION
+        # --------------------------------
+
         prediction_result = get_prediction(patient_id)
 
-
-        # --- TABS ---
-        tab1, tab2 = st.tabs(["📊 Risk Prediction", "🧠 Clinical Insights & Recommendations"])
+        tab1, tab2 = st.tabs([
+            "📊 Risk Prediction",
+            "🧠 Clinical Insights & Recommendations"
+        ])
 
         with tab1:
             if prediction_result is None:
-                st.error("Prediction data for this patient was not found.")
+                st.error(
+                    "Prediction data for this patient was not found."
+                )
             else:
-                render_risk_prediction_tab(patient_row, prediction_result)
+                render_risk_prediction_tab(
+                    patient_row,
+                    prediction_result
+                )
 
         with tab2:
             if prediction_result is None:
-                st.error("Prediction data for this patient was not found.")
+                st.error(
+                    "Prediction data for this patient was not found."
+                )
             else:
-                render_explainability_tab(patient_row, prediction_result)
+                render_explainability_tab(
+                    patient_row,
+                    prediction_result
+                )
         
-
 else:
     st.info("Search for a patient by ID or name to view risk prediction and explainability.")

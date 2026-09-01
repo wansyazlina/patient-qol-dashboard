@@ -489,7 +489,52 @@ def home():
         use_container_width=True,
     )
 
+# =========================================================
+# GLOBAL SELECTED PATIENT STATE
+# =========================================================
 
+if "selected_patient_id" not in st.session_state:
+    st.session_state.selected_patient_id = None
+
+if "selected_patient_name" not in st.session_state:
+    st.session_state.selected_patient_name = None
+    
+def render_current_patient_sidebar():
+
+    patient_id = st.session_state.get("selected_patient_id")
+    patient_name = st.session_state.get("selected_patient_name")
+
+    if not patient_id:
+        return
+
+    with st.sidebar:
+
+        st.markdown("---")
+
+        st.markdown(
+            f"""<div class="current-patient-sidebar">
+                <div class="current-patient-label">
+                    👤 Current Patient
+                </div>
+                <div class="current-patient-name">
+                    {patient_name}
+                </div>
+                <div class="current-patient-id">
+                    ID: {patient_id}
+                </div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+
+        if st.button(
+            "✕ Clear patient",
+            key="clear_selected_patient_sidebar",
+            use_container_width=True
+        ):
+            st.session_state.selected_patient_id = None
+            st.session_state.selected_patient_name = None
+            st.rerun()
+    
 # =========================================================
 # NAVIGATION
 # =========================================================
@@ -523,5 +568,5 @@ pg = st.navigation(
         ),
     ]
 )
-
+render_current_patient_sidebar()
 pg.run()
