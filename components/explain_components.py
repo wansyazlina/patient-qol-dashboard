@@ -3,154 +3,536 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import shap
+import json
+from pathlib import Path
 import numpy as np
+from utils.image_utils import get_icon_base64, FEATURE_ICONS
 
+def load_feature_explanations():
+
+    path = Path("assets/feature_explanations.json")
+
+    if not path.exists():
+        return {}
+
+    with open(path, "r", encoding="utf-8") as file:
+        return json.load(file)
+    
+FEATURE_EXPLANATIONS = load_feature_explanations()
 
 def render_explainability_header(patient_row, prediction_result):
-    patient_id = patient_row.get("patient_id", "N/A")
-    age = patient_row.get("age", "N/A")
-    mobility = patient_row.get("adm_mobility", "N/A")
+    # =====================================================
+    # PATIENT INFORMATION
+    # =====================================================
 
-    raw_pred = prediction_result.get("predicted_class", "N/A")
-    prob_decline = float(prediction_result.get("prob_decline", 0.0))
-    prob_no_decline = float(prediction_result.get("prob_no_decline", 0.0))
+    patient_name = str(
+        patient_row.get(
+            "name",
+            "Unknown Patient"
+        )
+    ).strip()
 
-    pred_str = str(raw_pred).strip().lower().replace("_", " ")
+    patient_id = str(
+        patient_row.get(
+            "patient_id",
+            "N/A"
+        )
+    ).strip()
 
-    if pred_str in ["0", "decline"]:
-        pred_label = "Decline"
-        pred_color = "#e25b52"
-        pred_bg = "#fbe7e5"
-        confidence = prob_decline
-        header_bg = "#f9dfdc"
-        border_color = "#f0d8d5"
-    elif pred_str in ["1", "no decline", "no_decline"]:
-        pred_label = "No Decline"
-        pred_color = "#2e8b57"
-        pred_bg = "#eaf7ee"
-        confidence = prob_no_decline
-        header_bg = "#dff2e5"
-        border_color = "#d2ead9"
+    # =====================================================
+    # PREDICTION INFORMATION
+    # =====================================================
+
+    prob_decline = float(
+        prediction_result.get(
+            "prob_decline",
+            0
+        )
+    )
+
+    risk_percent = prob_decline * 100
+
+    risk_level = prediction_result.get(
+        "risk_level",
+        "Unknown Risk"
+    )
+
+
+    # =====================================================
+    # RISK CLASS
+    # =====================================================
+
+    risk_level_lower = str(
+        risk_level
+    ).lower()
+
+    if "high" in risk_level_lower:
+
+        risk_class = "current-risk-high"
+        risk_icon = "⚠"
+
+    elif "moderate" in risk_level_lower:
+
+        risk_class = "current-risk-moderate"
+        risk_icon = "!"
+
     else:
-        pred_label = str(raw_pred).replace("_", " ").title()
-        pred_color = "#666666"
-        pred_bg = "#f4f4f4"
-        confidence = max(prob_decline, prob_no_decline)
-        header_bg = "#ebebeb"
-        border_color = "#dddddd"
 
-    c1, c2 = st.columns(2)
+        risk_class = "current-risk-low"
+        risk_icon = "✓"
 
-    with c1:
-        st.markdown(f"""
-        <div style="
-            background:#eef4ff;
-            border:1px solid #dbe4f3;
-            border-radius:16px;
-            overflow:hidden;
-            box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            min-height:150px;">
-            <div style="
-                background:#dfeafc;
-                color:#4a78d1;
-                padding:14px 18px;
-                font-size:18px;
-                font-weight:700;
-                display:flex;
-                align-items:center;
-                gap:10px;">
-                <span style="font-size:20px;">👤</span>
-                <span>Patient</span>
-            </div>
-            <div style="display:flex;min-height:98px;">
-                <div style="
-                    flex:1;
-                    padding:18px 22px;
-                    border-right:1px solid #e2e8f0;
-                    display:flex;
-                    align-items:flex-start;
-                    justify-content:flex-start;
-                    font-size:18px;
-                    color:#38507a;
-                    font-weight:600;">
-                    ID: {patient_id}
+
+    # =====================================================
+    # PATIENT PLACEHOLDER IMAGE
+    # Change this path to your actual image
+    # =====================================================
+
+    image_src = get_icon_base64(
+        "assets/patient_placeholder.png"
+    )
+
+
+    if image_src:
+
+        avatar_html = f"""<img
+                src="{image_src}"
+                class="current-patient-avatar"
+                alt="Patient profile placeholder">"""
+
+    else:
+
+        # fallback if image is missing
+        avatar_html = """<div class="current-patient-avatar-fallback">
+                👤
+            </div>"""
+
+
+    # =====================================================
+    # HEADER
+    # =====================================================
+
+    st.markdown(
+        f"""<div class="explain-current-patient-card">
+            <!-- LEFT SIDE -->
+            <div class="explain-patient-info">
+                <div class="explain-patient-avatar-wrapper">
+                    {avatar_html}
                 </div>
-                <div style="
-                    flex:1;
-                    padding:18px 22px;
-                    display:flex;
-                    flex-direction:column;
-                    justify-content:flex-start;
-                    gap:10px;
-                    color:#4f5f7d;">
-                    <div style="font-size:18px;">
-                        Age: <span style="font-weight:700; font-size:20px; color:#3a4b6a;">{age}</span>
+                <div class="explain-patient-text">
+                    <div class="explain-patient-main-line">
+                        <span class="explain-patient-label">
+                            Current patient:
+                        </span>
+                        <span class="explain-patient-name">
+                            {patient_name}
+                        </span>
                     </div>
-                    <div style="font-size:18px;">
-                        Mobility Score: <span style="font-weight:700; font-size:20px; color:#3a4b6a;">{mobility}</span>
+                    <div class="explain-patient-id">
+                        Patient ID: {patient_id}
                     </div>
                 </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div style="
-            background:{pred_bg};
-            border:1px solid {border_color};
-            border-radius:16px;
-            overflow:hidden;
-            box-shadow:0 1px 4px rgba(0,0,0,0.04);
-            min-height:150px;
-        ">
-            <div style="
-                background:{header_bg};
-                color:{pred_color};
-                padding:14px 18px;
-                font-size:18px;
-                font-weight:700;
-                display:flex;
-                align-items:center;
-                gap:8px;
-            ">
-                <span style="font-size:20px;">🎯</span>
-                <span>Prediction Result</span>
-            </div>
-            <div style="
-                padding:18px 22px;
-                color:#4f5f7d;
-                display:flex;
-                flex-direction:column;
-                gap:14px;
-            ">
-                <div style="font-size:18px;">
-                    Predicted:
-                    <span style="
-                        color:{pred_color};
-                        font-size:18px;
-                        font-weight:800;
-                        margin-left:8px;
-                    ">
-                        {pred_label}
-                    </span>
+            <!-- RIGHT SIDE -->
+            <div class="current-risk-badge {risk_class}">
+                <div class="current-risk-icon">
+                    {risk_icon}
                 </div>
-                <div style="font-size:18px;">
-                    Confidence:
-                    <span style="
-                        font-weight:700;
-                        font-size:20px;
-                        color:#3a4b6a;
-                        margin-left:8px;
-                    ">
-                        {confidence:.0%}
-                    </span>
+                <div class="current-risk-text">
+                    {risk_level}: {risk_percent:.0f}%
                 </div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True)
+    
+def render_top_contributingrisks_section(patient_row,prediction_result):
+
+    # =====================================================
+    # GET PATIENT-LEVEL SHAP DATA
+    # =====================================================
+
+    shap_values = prediction_result.get(
+        "shap_values",
+        None
+    )
+
+    feature_values = prediction_result.get(
+        "feature_values",
+        {}
+    )
+
+    feature_names = prediction_result.get(
+        "feature_names",
+        []
+    )
+
+    # =====================================================
+    # VALIDATE SHAP DATA
+    # =====================================================
+
+    if shap_values is None or len(feature_names) == 0:
+
+        st.warning(
+            "SHAP explanation could not be generated "
+            "for this patient."
+        )
+
+        return
 
 
+    shap_values = np.array(
+        shap_values
+    ).flatten()
+
+
+    if len(shap_values) != len(feature_names):
+
+        st.warning(
+            "SHAP values and feature names do not match."
+        )
+
+        return
+
+
+    # =====================================================
+    # BUILD CLEAN FACTOR LIST
+    # =====================================================
+
+    clean_factors = []
+
+
+    for index, feature_name in enumerate(feature_names):
+
+        shap_value = float(
+            shap_values[index]
+        )
+
+
+        # ---------------------------------------------
+        # GET FEATURE VALUE
+        # ---------------------------------------------
+
+        if isinstance(feature_values, dict):
+
+            feature_value = feature_values.get(
+                feature_name,
+                "N/A"
+            )
+
+        elif isinstance(
+            feature_values,
+            (list, tuple, np.ndarray)
+        ):
+
+            if index < len(feature_values):
+                feature_value = feature_values[index]
+
+            else:
+                feature_value = "N/A"
+
+        else:
+
+            feature_value = "N/A"
+
+
+        # ---------------------------------------------
+        # DISPLAY NAME + DESCRIPTION
+        # ---------------------------------------------
+
+        feature_info = FEATURE_EXPLANATIONS.get(
+            feature_name,
+            {}
+        )
+
+        display_name = feature_info.get(
+            "display_name",
+            str(feature_name)
+            .replace("adm_", "")
+            .replace("_", " ")
+            .title()
+        )
+
+        description = feature_info.get(
+            "description",
+            "This feature influenced the patient's predicted QoL risk."
+        )
+
+        clinical_note = feature_info.get(
+            "clinical_note",
+            ""
+        )
+
+        # ---------------------------------------------
+        # ADD TO FACTOR LIST
+        # ---------------------------------------------
+
+        clean_factors.append(
+            {
+                "feature": feature_name,
+                "display_name": display_name,
+                "feature_value": feature_value,
+                "description": description,
+                "shap_value": shap_value,
+            }
+        )
+
+    # =====================================================
+    # SPLIT POSITIVE / NEGATIVE SHAP CONTRIBUTIONS
+    # =====================================================
+    increasing_factors = sorted(
+        [
+            factor
+            for factor in clean_factors
+            if factor["shap_value"] > 0
+        ],
+        key=lambda x: x["shap_value"],
+        reverse=True
+    )[:4]
+
+
+    protective_factors = sorted(
+        [
+            factor
+            for factor in clean_factors
+            if factor["shap_value"] < 0
+        ],
+        key=lambda x: abs(x["shap_value"]),
+        reverse=True
+    )[:4]
+
+    # =====================================================
+    # FIND MAXIMUM ABSOLUTE SHAP FOR BAR SCALING
+    # =====================================================
+
+    all_visible_factors = (
+        increasing_factors
+        + protective_factors)
+
+    max_abs_shap = max(
+        (
+            abs(f["shap_value"])
+            for f in all_visible_factors
+        ),
+        default=1)
+
+    # =====================================================
+    # HELPER: BUILD EACH FACTOR ROW
+    # =====================================================
+
+    def build_factor_rows(
+        factor_list,
+        direction
+    ):
+
+        rows_html = ""
+        if not factor_list:
+
+            return """<div class="explain-factor-empty">
+                    No contributing factors available.
+                </div>"""
+
+
+        for factor in factor_list:
+
+            feature_name = factor["feature"]
+            display_name = factor["display_name"]
+            feature_value = factor["feature_value"]
+            description = factor["description"]
+            shap_value = factor["shap_value"]
+
+            # ---------------------------------------------
+            # ICON
+            # ---------------------------------------------
+
+            icon_path = FEATURE_ICONS.get(
+                feature_name
+            )
+
+            icon_src = (
+                get_icon_base64(icon_path)
+                if icon_path
+                else None
+            )
+
+
+            if icon_src:
+
+                icon_html = f"""<img
+                        src="{icon_src}"
+                        class="explain-factor-icon"
+                        alt="{display_name}">"""
+            else:
+
+                icon_html = """<div class="explain-factor-icon-fallback">
+                        ?
+                    </div>"""
+
+            # ---------------------------------------------
+            # BAR WIDTH
+            # ---------------------------------------------
+
+            if max_abs_shap > 0:
+
+                bar_width = max(8,int(abs(shap_value)/ max_abs_shap* 100))
+
+            else:
+                bar_width = 8
+
+            # ---------------------------------------------
+            # SIGNED SHAP VALUE
+            # ---------------------------------------------
+
+            signed_shap = (
+                f"+{shap_value:.2f}"
+                if shap_value > 0
+                else f"{shap_value:.2f}"
+            )
+
+
+            rows_html += f"""<div class="explain-factor-row">
+                    <div
+                        class="explain-factor-icon-wrapper
+                        {direction}-icon">
+                        {icon_html}
+                    </div>
+                    <div class="explain-factor-name-section">
+                        <div class="explain-factor-name">
+                            {display_name}
+                        </div>
+                        <div class="explain-factor-patient-value">
+                            Value: {feature_value}
+                        </div>
+                    </div>
+                    <div
+                        class="explain-factor-shap
+                        {direction}-value">
+                        {signed_shap}
+                    </div>
+                    <div class="explain-factor-bar">
+                        <div class="
+                                explain-factor-bar-fill
+                                {direction}-bar"
+                            style="width:{bar_width}%;">
+                        </div>
+                    </div>
+                    <div class="explain-factor-description">
+                        {description}
+                    </div>
+                </div>"""
+
+        return rows_html
+
+    # =====================================================
+    # CREATE HTML
+    # =====================================================
+
+    increasing_html = build_factor_rows(
+        increasing_factors,
+        "increasing"
+    )
+
+    protective_html = build_factor_rows(
+        protective_factors,
+        "protective"
+    )
+
+    # =====================================================
+    # SECTION TITLE
+    # =====================================================
+
+    st.markdown("""<div class="explainability-section-heading">
+            <div class="explainability-section-title">
+                Clinical Risk Interpretation
+            </div>
+            <div class="explainability-section-subtitle">
+                Patient-specific factors influencing
+                the predicted Quality of Life decline risk.
+            </div>
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # RENDER BOTH CARDS
+    # =====================================================
+
+    col1, col2 = st.columns(
+        2,
+        gap="medium"
+    )
+
+    # -----------------------------------------------------
+    # CARD 1 — INCREASING RISK
+    # -----------------------------------------------------
+
+    with col1:
+
+        st.markdown(
+            f"""<div class="
+                explain-contributor-card
+                increasing-risk-card">
+                <div class="
+                    explain-contributor-header
+                    increasing-risk-header">
+                    <div class="explain-header-symbol">
+                        ↗
+                    </div>
+                    <div>
+                        Factors Increasing Risk
+                    </div>
+                </div>
+                <div class="explain-factor-list">
+                    {increasing_html}
+                </div>
+                <div class="explain-factor-footer">
+                    <span>
+                        Positive values increase
+                        predicted decline risk
+                    </span>
+                    <span class="explain-info-icon">
+                        ⓘ
+                    </span>
+                </div>
+            </div>""",unsafe_allow_html=True)
+
+
+    # -----------------------------------------------------
+    # CARD 2 — PROTECTIVE FACTORS
+    # -----------------------------------------------------
+
+    with col2:
+
+        st.markdown(
+            f"""<div class="
+                explain-contributor-card
+                protective-risk-card">
+                <div class="
+                    explain-contributor-header
+                    protective-risk-header">
+                    <div class="explain-header-symbol">
+                        ♢
+                    </div>
+                    <div>
+                        Protective / Risk Reducing Factors
+                    </div>
+                </div>
+                <div class="explain-factor-list">
+                    {protective_html}
+                </div>
+                <div class="explain-factor-footer">
+                    <span>
+                        Negative values reduce
+                        predicted decline risk
+                    </span>
+                    <span class="explain-info-icon">
+                        ⓘ
+                    </span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True)
+       
 
 def render_shap_local_section(patient_row, prediction_result):
     shap_values = prediction_result.get("shap_values", None)

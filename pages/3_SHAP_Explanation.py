@@ -14,6 +14,7 @@ from utils.supabase_client import get_supabase_client
 st.set_page_config(page_title="QoL Risk Prediction", layout="wide",page_icon="🏥")
 
 load_css("styles/main.css")
+load_css("styles/explaintab.css")
 
 supabase = get_supabase_client()
 

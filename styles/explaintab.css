@@ -1,0 +1,570 @@
+/* =========================================================
+   EXPLAINABILITY - CURRENT PATIENT HEADER
+   ========================================================= */
+
+.explain-current-patient-card {
+
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    padding: 18px 24px;
+
+    margin-top: 8px;
+    margin-bottom: 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    border: 1px solid rgba(0, 0, 0, 0.04);
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.03);
+
+}
+
+
+/* =========================================================
+   LEFT - PATIENT INFORMATION
+   ========================================================= */
+
+.explain-patient-info {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.explain-patient-avatar-wrapper {
+
+    width: 62px;
+    height: 62px;
+
+    flex-shrink: 0;
+}
+
+
+.current-patient-avatar {
+
+    width: 62px;
+    height: 62px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    display: block;
+
+    background: #deded8;
+}
+
+
+.current-patient-avatar-fallback {
+
+    width: 62px;
+    height: 62px;
+
+    border-radius: 50%;
+
+    background: #d9d9d3;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+
+    color: #666;
+}
+
+
+/* =========================================================
+   PATIENT TEXT
+   ========================================================= */
+
+.explain-patient-text {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    min-width: 0;
+}
+
+
+.explain-patient-main-line {
+
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 18px;
+
+    flex-wrap: wrap;
+
+    line-height: 1.2;
+}
+
+
+.explain-patient-label {
+
+    font-family: var(--font-heading);
+
+    font-size: 1.05rem;
+
+    font-weight: 700;
+
+    color: #111111;
+}
+
+
+.explain-patient-name {
+
+    font-family: var(--font-heading);
+
+    font-size: 1.05rem;
+
+    font-weight: 700;
+
+    color: #111111;
+}
+
+
+.explain-patient-id {
+
+    font-family: var(--font-body);
+
+    font-size: 0.95rem;
+
+    font-weight: 400;
+
+    color: #666666;
+
+    letter-spacing: 0.01em;
+}
+
+
+/* =========================================================
+   RIGHT - RISK BADGE
+   ========================================================= */
+
+.current-risk-badge {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    min-width: 190px;
+
+    padding: 14px 22px;
+
+    border-radius: 18px;
+
+    flex-shrink: 0;
+}
+
+
+.current-risk-icon {
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+
+.current-risk-text {
+
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   HIGH RISK
+   ========================================================= */
+.current-risk-high {
+
+    background: #f9c2cf;
+    color: #c81049;
+}
+
+/* =========================================================
+   MODERATE RISK
+   ========================================================= */
+
+.current-risk-moderate {
+
+    background: #fff0c7;
+    color: #c78300;
+}
+
+
+/* =========================================================
+   LOW RISK
+   ========================================================= */
+
+.current-risk-low {
+
+    background: #dff4e5;
+    color: #21864b;
+}
+
+
+/* =========================================================
+   TOP CONTRIBUTING FACTORS SECTION
+   ========================================================= */
+
+.explainability-section-heading {
+    margin-top: 24px;
+    margin-bottom: 14px;
+}
+
+.explainability-section-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #282413;
+}
+
+.explainability-section-subtitle {
+    font-size: 0.85rem;
+    color: #77736a;
+    margin-top: 4px;
+}
+
+
+/* =========================================================
+   CONTRIBUTOR CARD
+   ========================================================= */
+
+.explain-contributor-card {
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-sizing: border-box;
+    min-height: 390px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.explain-contributor-header {
+    min-height: 76px;
+    padding: 0 26px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+
+/* Increasing */
+
+.increasing-risk-header {
+    background: #ec1760;
+    color: white;
+}
+
+
+/* Protective */
+
+.protective-risk-header {
+    background: #78e7a0;
+    color: #13251a;
+}
+
+
+.explain-header-symbol {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+
+/* =========================================================
+   FACTOR LIST
+   ========================================================= */
+
+.explain-factor-list {
+    padding: 18px 18px 8px 18px;
+    flex: 1;
+}
+
+
+/* =========================================================
+   INDIVIDUAL FACTOR ROW
+   ========================================================= */
+
+.explain-factor-row {
+
+    display: grid;
+
+    grid-template-columns:
+        56px
+        minmax(120px, 1.2fr)
+        58px
+        minmax(90px, 0.9fr)
+        minmax(150px, 1.6fr);
+
+    align-items: center;
+    gap: 12px;
+    min-height: 68px;
+    padding: 6px 0;
+}
+
+
+/* =========================================================
+   FEATURE ICON
+   ========================================================= */
+
+.explain-factor-icon-wrapper {
+
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+.increasing-icon {
+    background: #ffe4ed;
+}
+
+
+.protective-icon {
+    background: #ddf8e6;
+}
+
+
+.explain-factor-icon {
+
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+
+.explain-factor-icon-fallback {
+
+    font-size: 18px;
+    font-weight: 700;
+    color: #777;
+}
+
+
+/* =========================================================
+   FEATURE NAME + PATIENT VALUE
+   ========================================================= */
+
+.explain-factor-name-section {
+    min-width: 0;
+}
+
+
+.explain-factor-name {
+
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #222;
+    line-height: 1.25;
+}
+
+
+.explain-factor-patient-value {
+
+    font-size: 0.72rem;
+    color: #777;
+    margin-top: 3px;
+}
+
+
+/* =========================================================
+   SHAP VALUE
+   ========================================================= */
+
+.explain-factor-shap {
+
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+
+.increasing-value {
+    color: #ec1760;
+}
+
+
+.protective-value {
+    color: #008c78;
+}
+
+
+/* =========================================================
+   CONTRIBUTION BAR
+   ========================================================= */
+
+.explain-factor-bar {
+
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: #f1f1f1;
+    overflow: hidden;
+    border: 1px solid #e4e4e4;
+}
+
+
+.explain-factor-bar-fill {
+
+    height: 100%;
+
+    border-radius: 999px;
+}
+
+
+.increasing-bar {
+    background: #ec1760;
+}
+
+
+.protective-bar {
+    background: #78e7a0;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.explain-factor-description {
+
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #333;
+}
+
+
+/* =========================================================
+   CARD FOOTER
+   ========================================================= */
+
+.explain-factor-footer {
+
+    border-top: 1px solid #ded9c9;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: #726f64;
+}
+
+
+.explain-info-icon {
+
+    font-size: 1.25rem;
+    color: #777;
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.explain-factor-empty {
+
+    padding: 24px;
+    font-size: 0.85rem;
+    color: #888;
+    text-align: center;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .explain-factor-row {
+
+        grid-template-columns:
+            50px
+            1fr
+            55px;
+
+    }
+
+    .explain-factor-bar {
+        grid-column: 2 / 4;
+    }
+
+    .explain-factor-description {
+        grid-column: 2 / 4;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .explain-current-patient-card {
+
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+
+    }
+
+
+    .current-risk-badge {
+        width: 100%;
+        box-sizing: border-box;
+
+    }
+
+    .explain-patient-main-line {
+        gap: 6px;
+        flex-direction: column;
+
+    }
+
+}
