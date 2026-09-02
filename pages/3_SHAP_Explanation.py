@@ -24,7 +24,19 @@ def load_patients():
 
 df = load_patients()
 
+# --------------------------------
+# CURRENT PATIENT
+# --------------------------------
 
+patient_row = None
+
+selected_patient_id = st.session_state.get(
+    "selected_patient_id"
+)
+
+selected_patient_name = st.session_state.get(
+    "selected_patient_name"
+)
 
 st.markdown(
     """
@@ -79,9 +91,10 @@ if search_value:
 
 st.markdown("---")
 
-# -------------------------------
+# --------------------------------
 # RESULT SECTION
-# -------------------------------
+# --------------------------------
+
 if search_value:
 
     if filtered_df.empty:
@@ -90,9 +103,8 @@ if search_value:
     else:
         st.success(f"Found {len(filtered_df)} patient(s).")
 
-        # let user choose one
+        # Let user choose one
         if len(filtered_df) > 1:
-
             selected_patient_id = st.selectbox(
                 "Select patient",
                 filtered_df["patient_id"].astype(str).tolist()
@@ -125,42 +137,100 @@ if search_value:
         st.session_state.selected_patient_id = patient_id
         st.session_state.selected_patient_name = patient_name
 
-        # redraw sidebar immediately
+        # Redraw immediately when patient changes
         if previous_patient_id != patient_id:
             st.rerun()
 
-        # --------------------------------
-        # GET MODEL PREDICTION
-        # --------------------------------
 
-        prediction_result = get_prediction(patient_id)
+# =========================================================
+# LOAD CURRENT PATIENT FROM SESSION
+# IMPORTANT: THIS MUST BE OUTSIDE "if search_value"
+# =========================================================
 
-        tab1, tab2 = st.tabs([
-            "📊 Risk Prediction",
-            "🧠 Clinical Insights & Recommendations"
-        ])
+selected_patient_id = st.session_state.get(
+    "selected_patient_id"
+)
 
-        with tab1:
-            if prediction_result is None:
-                st.error(
-                    "Prediction data for this patient was not found."
-                )
-            else:
-                render_risk_prediction_tab(
-                    patient_row,
-                    prediction_result
-                )
+if selected_patient_id:
 
-        with tab2:
-            if prediction_result is None:
-                st.error(
-                    "Prediction data for this patient was not found."
-                )
-            else:
-                render_explainability_tab(
-                    patient_row,
-                    prediction_result
-                )
-        
+    current_patient = df[
+        df["patient_id"].astype(str).str.strip()
+        == str(selected_patient_id).strip()
+    ]
+
+    if not current_patient.empty:
+        patient_row = current_patient.iloc[0]
+
+    else:
+        # Patient no longer exists in dataset
+        st.session_state.selected_patient_id = None
+        st.session_state.selected_patient_name = None
+        patient_row = None
+
+
+# =========================================================
+# DISPLAY CURRENT PATIENT
+# =========================================================
+
+if patient_row is not None:
+
+    patient_id = str(
+        patient_row["patient_id"]
+    ).strip()
+
+    patient_name = str(
+        patient_row["name"]
+    ).strip()
+
+    prediction_result = get_prediction(
+        patient_id
+    )
+
+    # --------------------------------
+    # CURRENT PATIENT INDICATOR
+    # --------------------------------
+
+    if patient_row is  None:
+            st.warning(
+                "No patient selected. Search for a patient to view their QoL risk prediction."
+            )
+
+    # --------------------------------
+    # TABS
+    # --------------------------------
+
+    tab1, tab2 = st.tabs([
+        "📊 Risk Prediction",
+        "🧠 Clinical Insights & Recommendations"
+    ])
+
+    with tab1:
+        if prediction_result is None:
+            st.error(
+                "Prediction data for this patient "
+                "was not found."
+            )
+        else:
+            render_risk_prediction_tab(
+                patient_row,
+                prediction_result
+            )
+
+    with tab2:
+        if prediction_result is None:
+            st.error(
+                "Prediction data for this patient "
+                "was not found."
+            )
+        else:
+            render_explainability_tab(
+                patient_row,
+                prediction_result
+            )
+
 else:
-    st.info("Search for a patient by ID or name to view risk prediction and explainability.")
+
+    st.info(
+        "Search for a patient by ID or name "
+        "to view their QoL risk prediction."
+    )
