@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from components.clinical_interpretation import get_feature_value_dict
 from utils.clinical_guidance import FEATURE_GUIDANCE
+from utils.rag import generate_clinical_interpretation
         
 #------- Top 3 Risk Factor for patient row in cards 3 
 
@@ -247,3 +248,49 @@ def extract_lime_rules(lime_exp, top_n=3):
     except Exception:
         return []
     
+##------------------------------------
+#### FOR RAG CLINICAL INTERPRETATION
+##------------------------------------
+
+def build_rag_clinical_interpretation(
+    patient_row,
+    prediction_result,
+    top_factors
+):
+
+    risk_probability = float(
+        prediction_result.get(
+            "prob_decline",
+            0
+        )
+    ) * 100
+
+
+    risk_level = prediction_result.get(
+        "risk_level",
+        "Unknown"
+    )
+
+
+    patient_context = {
+        "patient_id": str(
+            patient_row.get(
+                "patient_id",
+                ""
+            )
+        ),
+
+        "risk_probability":
+            risk_probability,
+
+        "risk_level":
+            risk_level,
+    }
+
+
+    rag_result = generate_clinical_interpretation(
+        patient_context=patient_context,
+        top_factors=top_factors
+    )
+
+    return rag_result

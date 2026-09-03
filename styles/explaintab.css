@@ -518,6 +518,168 @@
     text-align: center;
 }
 
+/* =========================================================
+   RAG - BEFORE GENERATION CARD
+   ========================================================= */
+
+.rag-generation-card {
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    margin-top: 24px;
+    margin-bottom: 14px;
+
+    border: 1px solid rgba(40, 36, 19, 0.05);
+
+    box-shadow:
+        0 2px 8px rgba(40, 36, 19, 0.04);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.rag-generation-header {
+    display: flex;
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 22px 30px;
+
+    background: #e9e7dd;
+}
+
+
+.rag-generation-icon {
+    font-size: 2.4rem;
+
+    line-height: 1;
+
+    color: #4d493c;
+
+    flex-shrink: 0;
+}
+
+
+.rag-generation-title {
+    font-family: var(--font-heading);
+
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    color: #17150f;
+
+    line-height: 1.25;
+}
+
+
+.rag-generation-header-subtitle {
+    font-family: var(--font-body);
+
+    font-size: 0.78rem;
+
+    color: #716d61;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+.rag-generation-body {
+    background: #ffffff;
+
+    padding: 28px 34px 30px 34px;
+}
+
+
+.rag-generation-description {
+    max-width: 760px;
+
+    font-family: var(--font-body);
+
+    font-size: 0.95rem;
+
+    line-height: 1.6;
+
+    color: #444137;
+}
+
+
+/* =========================================================
+   STREAMLIT GENERATE BUTTON
+   ========================================================= */
+
+/*
+   This targets primary Streamlit buttons.
+   If you use other primary buttons on the same page,
+   they will also receive this styling.
+*/
+
+button[kind="primary"] {
+    background: #4f4518 !important;
+
+    color: white !important;
+
+    border: none !important;
+
+    border-radius: 10px !important;
+
+    padding: 0.55rem 1.1rem !important;
+
+    font-family: var(--font-body) !important;
+
+    font-weight: 600 !important;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease !important;
+}
+
+
+button[kind="primary"]:hover {
+    background: #3e3613 !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(79, 69, 24, 0.16) !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .rag-generation-header {
+        padding: 18px 20px;
+    }
+
+    .rag-generation-body {
+        padding: 22px 20px;
+    }
+
+    .rag-generation-title {
+        font-size: 1.08rem;
+    }
+
+    .rag-generation-icon {
+        font-size: 2rem;
+    }
+}
+
 
 /* =========================================================
    MOBILE

@@ -1,4 +1,5 @@
 import os
+from unittest import result
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ import json
 from pathlib import Path
 import numpy as np
 from utils.image_utils import get_icon_base64, FEATURE_ICONS
+from utils.explain import (build_rag_clinical_interpretation)
 
 def load_feature_explanations():
 
@@ -532,6 +534,10 @@ def render_top_contributingrisks_section(patient_row,prediction_result):
             </div>
             """,
             unsafe_allow_html=True)
+        
+    return {
+        "increasing": increasing_factors,
+        "protective": protective_factors}
        
 
 def render_shap_local_section(patient_row, prediction_result):
@@ -756,83 +762,186 @@ def render_force_plot_section(prediction_result):
         st.warning(f"Force plot could not be displayed: {e}")
 
 
-import streamlit as st
-from utils.explain import build_clinical_interpretation, extract_lime_rules
+##------------------------------------
+###  FOR RAG CLINICAL INTERPRETATION
+##------------------------------------
+        
+def render_clinical_interpretation_section(
+    patient_row,
+    prediction_result,
+    factor_result
+):
 
-def render_clinical_interpretation_section(prediction_result, lime_exp=None):
-    st.markdown("### Clinical Interpretation")
-    
-    # ===============================
-    # 5. Disclaimer
-    # ===============================
-    st.warning(
-        "This explanation is generated from model outputs and should be interpreted together "
-        "with the patient's full clinical context."
+    # =====================================================
+    # GET CURRENT PATIENT ID
+    # =====================================================
+
+    patient_id = str(
+        patient_row.get(
+            "patient_id",
+            ""
+        )
+    ).strip()
+
+
+    # Give each patient their own RAG cache
+    rag_key = (
+        f"clinical_rag_result_{patient_id}"
     )
 
-    result = build_clinical_interpretation(prediction_result, lime_exp=lime_exp, top_n=3)
+    review_key = (
+        f"clinical_rag_reviewed_{patient_id}"
+    )
 
-    # ===============================
-    # 1. Summary
-    # ===============================
-    st.info(result["summary"])
-
-    # ===============================
-    # 2. Explanation (Bullet Points)
-    # ===============================
-    st.markdown("#### Key Clinical Factors")
-
-    if result["decline_factors"] or result["protective_factors"]:
-
-        # ===============================
-        # 🔴 Decline Risk Factors (Professional Card/Table)
-        # ===============================
-        if result["decline_factors"]:
-            st.caption("These factors contributed most strongly toward a risk in decline.")
-
-            # Build table data
-            table_data = []
-            for item in result["decline_factors"]:
-                table_data.append({
-                    "Factor": item["display_name"],
-                    "Value": item["feature_value"],
-                    "Clinical Interpretation": item["clinical_note"]
-                })
-
-            # Display as table (clean + professional)
-            st.dataframe(
-                table_data,
-                use_container_width=True,
-                hide_index=True
-            )
-
-        else:
-            
-            st.info("No strong decline-driving factors identified.")
-
-    else:
-        st.write("No strong contributing factors identified.")
-
-    # ===============================
-    # 3. Recommendations (1 paragraph)
-    # ===============================
-    recommendation_parts = []
-
-    for item in result["decline_factors"] + result["protective_factors"]:
-        rec = item.get("recommendation", "")
-        if rec:
-            recommendation_parts.append(rec)
-
-    # remove duplicates
-    recommendation_parts = list(dict.fromkeys(recommendation_parts))
-
-    recommendation_text = " ".join(recommendation_parts)
-
-    st.markdown("#### Clinical Recommendations")
-
-    if recommendation_text:
-        st.write(recommendation_text)
-    else:
-        st.write("No specific recommendations available.")
+    edit_key = (
+        f"clinical_rag_edit_{patient_id}"
+    )
 
 
+    # =====================================================
+    # TOP FACTORS FOR RAG
+    # =====================================================
+
+    increasing_factors = factor_result.get(
+        "increasing",
+        []
+    )
+
+    top_factors = increasing_factors[:4]
+
+
+    if not top_factors:
+
+        st.info(
+            "No risk-increasing model factors are "
+            "available for clinical interpretation."
+        )
+
+        return
+
+
+    # =====================================================
+    # SECTION SPACING
+    # =====================================================
+
+    st.markdown(
+        "<div style='height:24px;'></div>",
+        unsafe_allow_html=True
+    )
+
+
+    # =====================================================
+    # GENERATE BUTTON
+    # =====================================================
+
+    if rag_key not in st.session_state:
+
+        st.markdown("""<div class="rag-generation-card">
+            <div class="rag-generation-header">
+                <div class="rag-generation-icon">
+                    ✦
+                </div>
+                <div>
+                    <div class="rag-generation-title">
+                        AI Generated Clinical Summary
+                    </div>
+                    <div class="rag-generation-header-subtitle">
+                        Evidence-grounded clinical decision support
+                    </div>
+                </div>
+            </div>
+            <div class="rag-generation-body">
+                <div class="rag-generation-description">
+                    Generate a patient-specific clinical summary using
+                    the model's risk factors and evidence retrieved from
+                    rehabilitation guidelines.
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True)
+
+    if st.button(
+        "✦ Generate Clinical Interpretation",
+        key=f"generate_rag_{patient_id}",
+        type="primary"
+    ):
+        with st.spinner(
+            "Searching clinical guidelines and generating interpretation..."
+        ):
+
+            try:
+                result = (
+                    build_rag_clinical_interpretation(
+                        patient_row,
+                        prediction_result,
+                        top_factors
+                    )
+                )
+
+                st.session_state[rag_key] = result
+
+                st.rerun()
+
+            except Exception as error:
+
+                st.error(
+                    "Clinical interpretation could not be generated."
+                )
+
+                st.exception(error)
+
+        return
+
+    # =====================================================
+    # GET GENERATED RESULT
+    # =====================================================
+
+    result = st.session_state.get(
+    rag_key,
+    None)
+
+    if result is None:
+        return
+
+    interpretation_text = result.get(
+        "text",
+        ""
+    )
+
+    sources = result.get(
+        "sources",
+        []
+    )
+
+    if not interpretation_text:
+        st.warning(
+            "The interpretation service returned an empty response. "
+            "Please try generating it again."
+        )
+        return
+
+    # =====================================================
+    # RENDER GENERATED RESULT
+    # =====================================================
+
+    st.markdown("### AI Generated Clinical Interpretation")
+    st.caption(
+        "Decision-support draft only. Review and edit before using "
+        "it in clinical documentation."
+    )
+    st.markdown(interpretation_text)
+
+    if sources:
+        with st.expander(
+            f"Retrieved guideline evidence ({len(sources)} sources)"
+        ):
+            for index, source in enumerate(sources, start=1):
+                metadata = getattr(source, "metadata", {}) or {}
+                filename = metadata.get("filename", "Unknown source")
+                page = metadata.get("page", "Unknown page")
+                st.markdown(f"**{index}. {filename} — page {page}**")
+
+                excerpt = getattr(source, "page_content", "")
+                if excerpt:
+                    st.caption(excerpt)

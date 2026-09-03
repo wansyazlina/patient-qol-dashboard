@@ -15,3 +15,8 @@ requests==2.32.3
 tqdm==4.66.5
 tzdata==2025.1
 gotrue==2.8.1
+langchain-ollama
+langchain-chroma
+langchain-community
+langchain-text-splitters
+pypdf
